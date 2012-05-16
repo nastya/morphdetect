@@ -1,0 +1,8 @@
+*~
+*\.kate-swp
+*\.o
+*\.smod
+build
+analyzer
+
+*\.sh
