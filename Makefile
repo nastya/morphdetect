@@ -74,11 +74,13 @@ main.o: main.cpp detectSimilar.h
 
 build/lib/libdetectsimilar.so: $(OBJECTS_LIB)
 	mkdir -p build/lib
-	$(CXX) $(FLAGS) -shared -o $@ $(OBJECTS_LIB) $(FLAGS_LIB) -lBeaEngine -lemu -lfinddecryptor
+	$(CXX) $(FLAGS) -shared -o $@ $(OBJECTS_LIB) -lBeaEngine -lemu -lfinddecryptor \
+		$(FLAGS_LIB)
 
 $(TARGET): main.o lib
-	$(CXX) $(FLAGS) -o $@ main.o $(FLAGS_LIB) -lfinddecryptor -ldetectsimilar \
-		-L$(CURDIR)/build/lib -Wl,-rpath -Wl,$(CURDIR)/build/lib
+	$(CXX) $(FLAGS) -o $@ main.o -lfinddecryptor -ldetectsimilar \
+		-L$(CURDIR)/build/lib -Wl,-rpath -Wl,$(CURDIR)/build/lib \
+		 $(FLAGS_LIB)
 
 
 ####### Platform-specific targets
