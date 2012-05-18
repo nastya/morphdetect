@@ -74,8 +74,7 @@ main.o: main.cpp detectSimilar.h
 
 build/lib/libdetectsimilar.so: $(OBJECTS_LIB)
 	mkdir -p build/lib
-	$(CXX) $(FLAGS) -shared -o $@ $(OBJECTS_LIB) -lBeaEngine -lemu -lqemu-stepper -lfinddecryptor \
-		-L$(CURDIR)/../qemu -Wl,-rpath -Wl,$(CURDIR)/../qemu \
+	$(CXX) $(FLAGS) -shared -o $@ $(OBJECTS_LIB) -lBeaEngine -lemu -lfinddecryptor \
 		-L$(CURDIR)/../lib -Wl,-rpath -Wl,$(CURDIR)/../lib 
 
 $(TARGET): main.o lib
