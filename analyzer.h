@@ -2,8 +2,8 @@
 #define __ANALYZER_H
 
 #include <vector>
-#include "reader.h"
 #include <string>
+#include <finddecryptor/reader.h>
 
 class Analyzer
 {

@@ -20,7 +20,7 @@ OBJECTS		= main.o $(OBJECTS_LIB)
 
 TARGET		= analyzer
 
-FLAGS		= -I../../../Программы/Project/coursework/src/
+FLAGS		= -I../include/
 
 ####### Build rules
 

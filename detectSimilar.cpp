@@ -8,7 +8,7 @@
 #include <fstream>
 #include <cstring>
 #include "analyzer.h"
-#include "finddecryptor.h"
+#include <finddecryptor/finddecryptor.h>
 #include <iostream>
 #include <sstream>
 

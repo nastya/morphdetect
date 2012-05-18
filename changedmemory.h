@@ -1,9 +1,9 @@
-#include "reader.h"
-#include "emulator.h"
-#include "emulator_libemu.h"
-#include "emulator_qemu.h"
-#include "data.h"
 #include <vector>
+#include <finddecryptor/reader.h>
+#include <finddecryptor/emulator.h>
+#include <finddecryptor/emulator_libemu.h>
+#include <finddecryptor/emulator_qemu.h>
+#include <finddecryptor/data.h>
 
 typedef pair <unsigned int,unsigned int> IntPair;
 using namespace std;

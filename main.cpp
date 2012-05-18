@@ -1,4 +1,4 @@
-#include "reader.h"
+#include <finddecryptor/reader.h>
 #include "detectSimilar.h"
 #include <iostream>
 #include <fstream>
