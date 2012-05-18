@@ -2,7 +2,7 @@
 #include <finddecryptor/reader.h>
 #include <finddecryptor/emulator.h>
 #include <finddecryptor/emulator_libemu.h>
-#include <finddecryptor/emulator_qemu.h>
+//#include <finddecryptor/emulator_qemu.h>
 #include <finddecryptor/data.h>
 
 typedef pair <unsigned int,unsigned int> IntPair;
