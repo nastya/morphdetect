@@ -108,13 +108,15 @@ void AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, int buf_size, 
 			
 		if (!len)
 		{
-			cerr << "Execution error"<< endl;
+			//cerr << "Execution error"<< endl;
 			break;
 		}
 		//num = emulator->get_register(Data::EIP);
 		if (!r->is_valid(num)) {
+			/*
 			if (dest_buf == _data_processed)
 				cerr << " Reached end of the memory block, stopping instance." << endl;
+			*/
 			break;
 		}
 		(void) memset (&(myDisasm), 0, sizeof(DISASM));
@@ -125,29 +127,29 @@ void AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, int buf_size, 
 		*/
 		if (len == UNKNOWN_OPCODE)
 		{
-			cerr << "Unknown opcode encountered" << endl;
+			//cerr << "Unknown opcode encountered" << endl;
 			break;
 		}
 		br_type = myDisasm.Instruction.BranchType;
 		if (myDisasm.Instruction.BranchType)
 			addr_value = myDisasm.Instruction.AddrValue - myDisasm.EIP;
+		/*
 		if ( (dest_buf == _data_processed) && ((myDisasm.Instruction.BranchType != JmpType) || (myDisasm.Instruction.AddrValue == 0)) )
 		{
 			char buffer[30];
-			/*
 			cerr << i << ": " << "EIP: 0x" << hex << num << " " << myDisasm.CompleteInstr << ", len = " << len << 
 				", opcode " << myDisasm.Instruction.Opcode << endl;
-			*/
 			emulator->get_memory(buffer, num, 30);
 			(void) memset (&(myDisasm), 0, sizeof(DISASM));
 			myDisasm.EIP = (UIntPtr) buffer;
-			for (int j = 0; j < 0; j++)
+			for (int j = 0; j < 5; j++)
 			{
 				int len = Disasm(&myDisasm);
 				cerr << "    " << myDisasm.CompleteInstr << endl;
 				myDisasm.EIP = myDisasm.EIP + (UIntPtr) len;
 			}
 		}
+		*/
 		//cout<<"Len = " << len << endl;
 		if (totallen + len >= max_dest_size)
 			break;
@@ -157,7 +159,7 @@ void AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, int buf_size, 
 		int prev_eip = num;
 		if (!emulator -> step())
 		{
-			cerr << "Execution error, skipping instruction" << endl;
+//			cerr << "Execution error, skipping instruction" << endl;
 			emulator->jump(prev_eip + len);
 			continue;
 		}
@@ -167,12 +169,12 @@ void AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, int buf_size, 
 		{
 			if (num != prev_eip + len)
 			{
-				cerr << "Changing flow from " << num << " to " << prev_eip + len << endl; 
+//				cerr << "Changing flow from " << num << " to " << prev_eip + len << endl;
 				emulator->jump(prev_eip + len);
 			}
 			else if (addr_value != 0)
 			{
-				cerr << "Changing flow from " << num << " to " << prev_eip + len + addr_value << endl;
+//				cerr << "Changing flow from " << num << " to " << prev_eip + len + addr_value << endl;
 				emulator->jump(prev_eip + len + addr_value);
 			}
 		}
@@ -257,16 +259,18 @@ vector<InstructionInfo> AnalyzerTrace::buildInstructions(unsigned char* data, in
 		
 		if (len == UNKNOWN_OPCODE)
 		{
-			cerr<<"UNKNOWN_OPCODE"<<endl;
+			//cerr<<"UNKNOWN_OPCODE"<<endl;
 			break;
 		}
 		if (!myDisasm.Instruction.BranchType)
 		{
 			instructions.push_back(InstructionInfo((unsigned char *)myDisasm.EIP, len));
+			/*
 			if (data == _data_processed)
 			{
-				//cout << myDisasm.CompleteInstr << endl;
+				cout << myDisasm.CompleteInstr << endl;
 			}
+			*/
 		}
 		//out<< (*_disasm).CompleteInstr<< "\\n";
 		myDisasm.EIP = myDisasm.EIP + (UIntPtr) len;
