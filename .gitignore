@@ -4,5 +4,7 @@
 *\.smod
 build
 analyzer
+equivs.*
+*.deb
 
 *\.sh

@@ -1,0 +1,39 @@
+### Commented entries have reasonable defaults.
+### Uncomment to edit them.
+Section: misc
+Priority: optional
+Homepage: https://gitorious.org/shellcode-detection/morphdetect
+Standards-Version: 3.6.2
+
+Package: morphdetect
+Version: 0.1.0
+Maintainer: Anastasiya Shcherbinina <nastya_jane@lvk.cs.msu.su>
+# Pre-Depends: <comma-separated list of packages>
+Depends: finddecryptor
+# Recommends: <comma-separated list of packages>
+# Suggests: <comma-separated list of packages>
+# Provides: <comma-separated list of packages>
+# Replaces: <comma-separated list of packages>
+Architecture: any
+# Copyright: <copyright file; defaults to GPL2>
+# Changelog: <changelog file; defaults to a generic changelog>
+# Readme: <README.Debian file; defaults to a generic one>
+# Extra-Files: <comma-separated list of additional files for the doc directory>
+Files: analyzer /usr/bin/morphdetect
+  build/lib/libdetectsimilar.so /usr/lib/libdetectsimilar.so
+  analyzerCFG.h /usr/include/morphdetect/analyzerCFG.h
+  analyzerDiff.h /usr/include/morphdetect/analyzerDiff.h
+  analyzer.h /usr/include/morphdetect/analyzer.h
+  analyzerNgram.h /usr/include/morphdetect/analyzerNgram.h
+  analyzerTrace.h /usr/include/morphdetect/analyzerTrace.h
+  block.h /usr/include/morphdetect/block.h
+  changedmemory.h /usr/include/morphdetect/changedmemory.h
+  compareUtils.h /usr/include/morphdetect/compareUtils.h
+  detectSimilar.h /usr/include/morphdetect/detectSimilar.h
+  instructionInfo.h /usr/include/morphdetect/instructionInfo.h
+  normalizer.h /usr/include/morphdetect/normalizer.h
+
+Description: Similarity-based polymorphic shellcode detector.
+ Addresses the problem of detection of polymorphic and metamorphic shellcode in the network traffic.
+ Input: dataset of known shellcodes and bytes sequence to analyze.
+ Output: information of attack detected.

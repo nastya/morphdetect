@@ -1,5 +1,5 @@
 ####### Compiler, tools and options
-CXX		= g++ --std=c++11 -g -Wall -fPIC -O2 -I.
+CXX		= g++ -g -Wall -fPIC -O2 -I.
 DEL_FILE		= rm -f
 
 ####### Files
@@ -20,7 +20,8 @@ OBJECTS		= main.o $(OBJECTS_LIB)
 
 TARGET		= analyzer
 
-FLAGS		= -I../include/
+FLAGS		= --std=c++11
+FLAGS_LIB	=
 
 ####### Build rules
 
@@ -32,7 +33,6 @@ lib: build/lib/libdetectsimilar.so
 
 clean:
 	$(DEL_FILE) $(OBJECTS) *~
-
 
 ####### Compile
 
@@ -74,10 +74,21 @@ main.o: main.cpp detectSimilar.h
 
 build/lib/libdetectsimilar.so: $(OBJECTS_LIB)
 	mkdir -p build/lib
-	$(CXX) $(FLAGS) -shared -o $@ $(OBJECTS_LIB) -lBeaEngine -lemu -lfinddecryptor \
-		-L$(CURDIR)/../lib -Wl,-rpath -Wl,$(CURDIR)/../lib 
+	$(CXX) $(FLAGS) -shared -o $@ $(OBJECTS_LIB) $(FLAGS_LIB) -lBeaEngine -lemu -lfinddecryptor
 
 $(TARGET): main.o lib
-	$(CXX) $(FLAGS) -o $@ main.o -lfinddecryptor -ldetectsimilar \
-		-L$(CURDIR)/build/lib -Wl,-rpath -Wl,$(CURDIR)/build/lib \
-		-L$(CURDIR)/../lib -Wl,-rpath -Wl,$(CURDIR)/../lib 
+	$(CXX) $(FLAGS) -o $@ main.o $(FLAGS_LIB) -lfinddecryptor -ldetectsimilar \
+		-L$(CURDIR)/build/lib -Wl,-rpath -Wl,$(CURDIR)/build/lib
+
+
+####### Platform-specific targets
+
+local: FLAGS = --std=c++11 -I../include/
+local: FLAGS_LIB = -L$(CURDIR)/../lib -Wl,-rpath -Wl,$(CURDIR)/../lib
+local: all
+
+debian: FLAGS = --std=c++0x
+debian: all
+
+deb: debian distrib/morphdetect.equivs
+	equivs-build distrib/morphdetect.equivs
