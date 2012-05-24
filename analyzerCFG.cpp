@@ -150,6 +150,7 @@ string AnalyzerCFG::analyze_single(int pos)
 string AnalyzerCFG::analyze()
 {
 	string ans;
+	_eips_passe.clear();
 	if (_brut)
 	{
 		for (int pos = 0; pos < _data_size - MIN_SHELLCODE_SIZE; pos++)
