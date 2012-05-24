@@ -3,6 +3,7 @@
 #include <string.h>
 #include <beaengine/BeaEngine.h>
 #include <vector>
+#define EMULATION_CHM_THRESHOLD 3000
 
 Data::Register ChangedMemory::convertRegister(int beareg)
 {
@@ -56,7 +57,6 @@ ChangedMemory::ChangedMemory(char* filename, int emulator_type)
 {
 	reader=new Reader;
 	reader->load(filename);
-	emulator = new Emulator_LibEmu;
 	switch (emulator_type)
 	{
 		case 1: emulator = new Emulator_LibEmu; 
@@ -77,7 +77,6 @@ ChangedMemory::ChangedMemory(unsigned char* data, int datasize, int emulator_typ
 {
 	reader=new Reader;
 	reader->link(data, datasize);
-	emulator = new Emulator_LibEmu;
 	switch (emulator_type)
 	{
 		case 1: emulator = new Emulator_LibEmu; 
@@ -165,11 +164,11 @@ int ChangedMemory::compute(int entry_point)
 	IntPair p;
 	
 	vector<IntPair> intervals, intervals_before;
-	for (int i = 0; i<100000 ; i++)
+	for (int i = 0; i < EMULATION_CHM_THRESHOLD ; i++)
 	{
 		if (!emulator -> get_command(buf))
 		{
-			cout << "Execution error"<< endl;
+			cerr << "Execution error"<< endl;
 			break;
 		}
 		int num = emulator->get_register(Data::EIP);
@@ -275,6 +274,10 @@ int ChangedMemory::compute(int entry_point)
 	{
 		if (intervals[i].second < intervals[i].first + 20)
 			continue;
+		if (intervals[i].first - reader->entrance() >= reader->size())
+			continue;
+		if (intervals[i].second - reader->entrance() >= reader->size())
+			intervals[i].second = reader->size() - 1 + reader->entrance();
 		shellcode_size[amount_shellcodes] = intervals[i].second - intervals[i].first + 1;
 		shellcode[amount_shellcodes] = new unsigned char[shellcode_size[amount_shellcodes]];
 		emulator->get_memory((char *) shellcode[amount_shellcodes], intervals[i].first, shellcode_size[amount_shellcodes]);
