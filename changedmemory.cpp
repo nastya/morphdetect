@@ -177,14 +177,11 @@ int ChangedMemory::compute(int entry_point)
 			break;
 		}
 		int len = Disasm(&MyDisasm);
-		if (len != UNKNOWN_OPCODE)
+		if (len == UNKNOWN_OPCODE)
 		{
-			//printf("%s\n", MyDisasm.CompleteInstr);
-		}	
-		else
 			break;
-//		int type1 = MyDisasm.Instruction.Category & 0xFFFF0000;
-//		int type2 = MyDisasm.Instruction.Category & 0x0000FFFF;
+		}
+		//printf("%s\n", MyDisasm.CompleteInstr);
 		int num1 = 0, num2 = 0;
 		if (MyDisasm.Argument1.AccessMode == WRITE && MyDisasm.Argument1.ArgType == MEMORY_TYPE &&
 			MyDisasm.Argument1.ArgSize != 0)
