@@ -168,7 +168,7 @@ int ChangedMemory::compute(int entry_point)
 	{
 		if (!emulator -> get_command(buf))
 		{
-			cerr << "Execution error"<< endl;
+			//cerr << "Execution error"<< endl;
 			break;
 		}
 		int num = emulator->get_register(Data::EIP);
