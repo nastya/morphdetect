@@ -6,11 +6,11 @@
 struct InstructionInfo
 {
 public:
-	InstructionInfo(unsigned char* a, int l);
+	InstructionInfo(DISASM *disasm, int l);
 	bool operator==(InstructionInfo& a);
 
-	unsigned char* addr;
 	int len;
+	DISASM disasm;
 private:
 	bool checkArgs(ARGTYPE arg1, ARGTYPE arg2);
 };

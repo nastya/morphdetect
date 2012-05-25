@@ -20,13 +20,8 @@ public:
 private:
 	void clear();
 	string analyze_single(int pos);
-	void buildTrace(int pos, const unsigned char* buf, int buf_size, unsigned char* dest_buf, int* dest_size, int max_dest_size);
-	vector<InstructionInfo> buildInstructions(unsigned char* data, int len);
+	vector<InstructionInfo> buildTrace(int pos, const unsigned char* buf, int buf_size);
 	void processShellcodes();
-	unsigned char* _data_processed;
-	unsigned char** _shellcodesProcessed;
-	int * _shellcodesProcessedSizes;
-	int _data_processed_len;
 	vector <InstructionInfo> _instructions;
 	vector <InstructionInfo> *_shellcodeInstructions;
 	set <int> _eips_passe;

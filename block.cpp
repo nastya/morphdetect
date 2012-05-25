@@ -1,8 +1,8 @@
 #include "block.h"
+#include "wrappers.h"
 #include <string.h>
 #include <iostream>
 #include <assert.h>
-
 
 BlockInfo::BlockInfo(DISASM* disasm, UIntPtr data_start, UIntPtr data_end, UIntPtr entry_point, bool resp)
 	:_data_start(data_start), _data_end(data_end), _first_block(true), _disasm(disasm)
@@ -139,7 +139,7 @@ void BlockInfo::generateDot(ostream& out, set<BlockInfo *> *done)
 		(*_disasm).EIP = (*it).entry_point;
 		while ((*_disasm).EIP < (*it).entry_point + (UIntPtr)(*it).size)
 		{
-			int len = Disasm(&(*_disasm));
+			int len = DisasmWrapper(&(*_disasm));
 			out<< (*_disasm).CompleteInstr<< "\\n";
 			(*_disasm).EIP = (*_disasm).EIP + (UIntPtr) len;
 		}
@@ -172,7 +172,7 @@ void BlockInfo::_getEIPSPasse(set <int>* s, set <BlockInfo*> *done)
 		while ((*_disasm).EIP < (*it).entry_point + (UIntPtr)(*it).size)
 		{
 			s->insert((*_disasm).EIP - _data_start);
-			int len = Disasm(&(*_disasm));
+			int len = DisasmWrapper(&(*_disasm));
 			(*_disasm).EIP = (*_disasm).EIP + (UIntPtr) len;
 		}
 	}
@@ -277,7 +277,7 @@ void BlockInfo::process()
 			return;
 		}
 		
-		int len = Disasm(&(*_disasm));
+		int len = DisasmWrapper(&(*_disasm));
 
 		if ((len != UNKNOWN_OPCODE) && (((*_disasm).Instruction.Category & 0xFFFF0000) == SYSTEM_INSTRUCTION))
 		{
@@ -409,7 +409,7 @@ void BlockInfo::_clearOppositeInstructions(map<string, string>* opposite)
 		bool it_changed = false;
 		while ((*_disasm).EIP < (*it).entry_point + (*it).size)
 		{
-			int len = Disasm(&(*_disasm));
+			int len = DisasmWrapper(&(*_disasm));
 			if (opposite->count((*_disasm).Instruction.Mnemonic) && 
 				strcmp(prev_mnem, (*opposite)[(*_disasm).Instruction.Mnemonic].c_str()) == 0 && 
 				strcmp(prev_arg_mnem1, (*_disasm).Argument1.ArgMnemonic) == 0 &&
@@ -499,7 +499,7 @@ bool BlockInfo::isDirectJx(UIntPtr* addr, int* type)
 	bool jump = false;
 	while ((*_disasm).EIP < _subBlocks[0].entry_point + (UIntPtr) _subBlocks[0].size)
 	{
-		int len = Disasm(&(*_disasm));
+		int len = DisasmWrapper(&(*_disasm));
 		if ((*_disasm).Instruction.BranchType && (*_disasm).Instruction.AddrValue != 0 &&
 			(*_disasm).Instruction.BranchType != CallType && (*_disasm).Instruction.BranchType != RetType &&
 			(*_disasm).Instruction.BranchType != JECXZ && (*_disasm).Instruction.BranchType != JmpType)
@@ -594,7 +594,7 @@ void BlockInfo::removeJumpsInside()
 	(*_disasm).EIP = _subBlocks[0].entry_point;
 	while ((*_disasm).EIP < _subBlocks[0].entry_point + (UIntPtr)_subBlocks[0].size)
 	{
-		int len = Disasm(&(*_disasm));
+		int len = DisasmWrapper(&(*_disasm));
 		if ((*_disasm).Instruction.BranchType == JmpType && (*_disasm).Instruction.AddrValue != 0)
 		{
 			_subBlocks[0].size = (*_disasm).EIP - _subBlocks[0].entry_point;
@@ -629,7 +629,7 @@ BlockInfo* BlockInfo::removeJumpsOnly(set<BlockInfo*> *done)
 		bool jump = false;
 		while ((*_disasm).EIP < _subBlocks[0].entry_point + (UIntPtr) _subBlocks[0].size)
 		{
-			int len = Disasm(&(*_disasm));
+			int len = DisasmWrapper(&(*_disasm));
 			if ((*_disasm).Instruction.BranchType == JmpType && (*_disasm).Instruction.AddrValue != 0)
 			{
 				jump = true;

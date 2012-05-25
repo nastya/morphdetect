@@ -1,6 +1,7 @@
 #ifndef __COMPARE_UTILS_H
 #define __COMPARE_UTILS_H
 
+#include "timer.h"
 #include <iostream>
 #include <algorithm>
 using namespace std;
@@ -21,6 +22,7 @@ public:
 
 	template<class T1, class T2> static size_t longest_common_subsequence(T1 s1, size_t len1, T2 s2, size_t len2)
 	{
+		TimerAnalyzer::start(TimeDiff);
 		if ((len1 == 0) || (len2 == 0)) {
 			cerr << "WHOOPS! " << len1 << " " << len2 << endl;
 			return 0;
@@ -55,6 +57,7 @@ public:
 		for (size_t i = 0; i < len1; i++)
 			delete [] f[i];
 		delete [] f;
+		TimerAnalyzer::stop(TimeDiff);
 		return res;
 	}
 };

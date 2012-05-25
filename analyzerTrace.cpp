@@ -1,10 +1,10 @@
 #include "analyzerTrace.h"
 #include "compareUtils.h"
+#include "wrappers.h"
 #include <finddecryptor/emulator.h>
 #include <finddecryptor/emulator_libemu.h>
 //#include <finddecryptor/emulator_qemu.h>
 #include <finddecryptor/data.h>
-
 #include <iostream>
 #include <cstring>
 #include <map>
@@ -16,18 +16,14 @@ using namespace std;
 
 AnalyzerTrace::AnalyzerTrace(bool brut): _brut(brut)
 {
-	_data_processed_len = 0;
-	_data_processed = NULL;
-	_shellcodesProcessed = NULL;
+	_shellcodeInstructions = NULL;
 	_className = "AnalyzerTrace";
 }
 
 AnalyzerTrace::AnalyzerTrace(const unsigned char* data, uint size)
 	: Analyzer(data, size), _brut(true)
 {
-	_data_processed_len = 0;
-	_data_processed = NULL;
-	_shellcodesProcessed = NULL;
+	_shellcodeInstructions = NULL;
 	_className = "AnalyzerTrace";
 	
 }
@@ -42,31 +38,19 @@ void AnalyzerTrace::loadShellcodes(char * dirname)
 void AnalyzerTrace::clear()
 {
 	Analyzer::clear();
-	if (_data_processed != NULL)
-		delete [] _data_processed;
-	_data_processed = NULL;
-	if (_shellcodesProcessed != NULL)
+	if (_shellcodeInstructions != NULL)
 	{
-		for (int i = 0; i < _amountShellcodes; i++)
-			delete [] _shellcodesProcessed[i];
-		delete [] _shellcodesProcessed;
-		delete [] _shellcodesProcessedSizes;
 		delete [] _shellcodeInstructions;
+		_shellcodeInstructions = NULL;
 	}
-	_shellcodesProcessed = NULL;
 }
 
 void AnalyzerTrace::processShellcodes()
 {
-	_shellcodesProcessed = new unsigned char* [_amountShellcodes];
-	_shellcodesProcessedSizes = new int [_amountShellcodes];
 	_shellcodeInstructions = new vector <InstructionInfo> [_amountShellcodes];
 	for (int i = 0; i < _amountShellcodes; i++)
 	{
-		_shellcodesProcessed[i] = new unsigned char [_shellcodeSizes[i] * 10];
-		buildTrace(0, _shellcodes[i], _shellcodeSizes[i], _shellcodesProcessed[i], &_shellcodesProcessedSizes[i],
-			   _shellcodeSizes[i] * 10);
-		_shellcodeInstructions[i] = buildInstructions (_shellcodesProcessed[i], _shellcodesProcessedSizes[i]);
+		_shellcodeInstructions[i] = buildTrace(0, _shellcodes[i], _shellcodeSizes[i]);
 	}
 }
 
@@ -75,9 +59,10 @@ AnalyzerTrace::~AnalyzerTrace()
 	clear();
 }
 
-void AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, int buf_size, unsigned char* dest_buf,
-			       int* dest_size, int max_dest_size)
+vector<InstructionInfo> AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, int buf_size)
 {
+	vector<InstructionInfo> instructions;
+
 	Reader *r = new Reader(0u);
 	r->link(buf, buf_size);
 	
@@ -89,7 +74,6 @@ void AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, int buf_size, 
 	emulator -> bind(r);
 	emulator -> begin(pos);
 	char buff[10];
-	int totallen = 0;
 	DISASM myDisasm;
 	
 	map <int, int> eip_passe;
@@ -121,7 +105,7 @@ void AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, int buf_size, 
 		}
 		(void) memset (&(myDisasm), 0, sizeof(DISASM));
 		myDisasm.EIP = (UIntPtr) buff;
-		len = Disasm(&myDisasm);
+		len = DisasmWrapper(&myDisasm);
 		/*cout << i << ": " << "EIP: 0x" << hex << num << " " << myDisasm.CompleteInstr << ", len = " << len << 
 				", opcode " << myDisasm.Instruction.Opcode<< endl;
 		*/
@@ -144,17 +128,19 @@ void AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, int buf_size, 
 			myDisasm.EIP = (UIntPtr) buffer;
 			for (int j = 0; j < 5; j++)
 			{
-				int len = Disasm(&myDisasm);
+				int len = DisasmWrapper(&myDisasm);
 				cerr << "    " << myDisasm.CompleteInstr << endl;
 				myDisasm.EIP = myDisasm.EIP + (UIntPtr) len;
 			}
 		}
 		*/
 		//cout<<"Len = " << len << endl;
-		if (totallen + len >= max_dest_size)
-			break;
-		memcpy(dest_buf + totallen, (unsigned char*)buff, len);
-		totallen += len;
+
+		if (!myDisasm.Instruction.BranchType)
+		{
+			instructions.push_back(InstructionInfo(&myDisasm, len));
+		}
+
 		//cout << "  Command: 0x" << hex << num << ": " << instruction_string(&inst, num) << endl;
 		int prev_eip = num;
 		if (!emulator -> step())
@@ -181,20 +167,12 @@ void AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, int buf_size, 
 	}
 	delete emulator;
 	delete r;
-	
-	//_data_processed = new unsigned char[_data_size*10];
-	*dest_size = totallen;
+	return instructions;
 }
 
 string AnalyzerTrace::analyze_single(int pos)
 {
-	if (_data_processed != NULL)
-		delete [] _data_processed;
-	_data_processed = new unsigned char [_data_size * 10];
-	buildTrace(pos, _data, _data_size, _data_processed, &_data_processed_len, _data_size * 10);
-	//cout << "Dataprocessed len = "<< _data_processed_len << ", max_len = " <<  _data_size * 10 << endl;
-	//cout << "Destination buffer size " << _data_processed_len << endl;
-	_instructions = buildInstructions(_data_processed, _data_processed_len);
+	_instructions = buildTrace(pos, _data, _data_size);
 	if (_instructions.size() == 0)
 		return string();
 	double max_coef = 0.0;
@@ -247,39 +225,10 @@ string AnalyzerTrace::analyze()
 	return ans;
 }
 
-vector<InstructionInfo> AnalyzerTrace::buildInstructions(unsigned char* data, int data_size)
-{
-	DISASM myDisasm;
-	(void) memset (&(myDisasm), 0, sizeof(DISASM));
-	myDisasm.EIP = (UIntPtr) data;
-	vector <InstructionInfo> instructions;
-	while (myDisasm.EIP < (UIntPtr)(data + data_size))
-	{
-		int len = Disasm(&myDisasm);
-		
-		if (len == UNKNOWN_OPCODE)
-		{
-			//cerr<<"UNKNOWN_OPCODE"<<endl;
-			break;
-		}
-		if (!myDisasm.Instruction.BranchType)
-		{
-			instructions.push_back(InstructionInfo((unsigned char *)myDisasm.EIP, len));
-			/*
-			if (data == _data_processed)
-			{
-				cout << myDisasm.CompleteInstr << endl;
-			}
-			*/
-		}
-		//out<< (*_disasm).CompleteInstr<< "\\n";
-		myDisasm.EIP = myDisasm.EIP + (UIntPtr) len;
-	}
-	return instructions;
-}
-
 ostream & AnalyzerTrace::operator<<(ostream &s)
 {
+	/// TODO
+	/*
 	s << _className << endl;
 	s << _amountShellcodes << endl;
 	int i = 0;
@@ -301,10 +250,13 @@ ostream & AnalyzerTrace::operator<<(ostream &s)
 		}
 		s << endl;
 	}
+	*/
 	return s;
 }
 istream & AnalyzerTrace::operator>>(istream &s)
 {
+	/// TODO
+	/*
 	string name;
 	s >> name;
 	if (name != _className)
@@ -344,5 +296,6 @@ istream & AnalyzerTrace::operator>>(istream &s)
 	}
 	delete [] sizes;
 	_shellcodes_loaded = true;
+	*/
 	return s;
 }

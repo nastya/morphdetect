@@ -1,6 +1,7 @@
 #include "analyzerCFG.h"
 #include "block.h"
 #include "compareUtils.h"
+#include "wrappers.h"
 #include <map>
 #include <iostream>
 #include <cstring>
@@ -179,7 +180,7 @@ vector<InstructionInfo> AnalyzerCFG::buildInstructions(unsigned char* data, int 
 	vector <InstructionInfo> instructions;
 	while (myDisasm.EIP < (UIntPtr)(data + data_size))
 	{
-		int len = Disasm(&myDisasm);
+		int len = DisasmWrapper(&myDisasm);
 		/*
 		if (data == _data_processed)
 		{
@@ -192,7 +193,7 @@ vector<InstructionInfo> AnalyzerCFG::buildInstructions(unsigned char* data, int 
 			break;
 		}
 		if (!myDisasm.Instruction.BranchType)
-			instructions.push_back(InstructionInfo((unsigned char *)myDisasm.EIP, len));
+			instructions.push_back(InstructionInfo(&myDisasm, len));
 		//out<< (*_disasm).CompleteInstr<< "\\n";
 		myDisasm.EIP = myDisasm.EIP + (UIntPtr) len;
 	}
@@ -201,6 +202,8 @@ vector<InstructionInfo> AnalyzerCFG::buildInstructions(unsigned char* data, int 
 
 ostream & AnalyzerCFG::operator<<(ostream &s)
 {
+	/// TODO
+	/*
 	s << _className << endl;
 	s << _amountShellcodes << endl;
 	int i = 0;
@@ -222,10 +225,13 @@ ostream & AnalyzerCFG::operator<<(ostream &s)
 		}
 		s << endl;
 	}
+	*/
 	return s;
 }
 istream & AnalyzerCFG::operator>>(istream &s)
 {
+	/// TODO
+	/*
 	string name;
 	s >> name;
 	if (name != _className)
@@ -265,5 +271,6 @@ istream & AnalyzerCFG::operator>>(istream &s)
 	}
 	delete [] sizes;
 	_shellcodes_loaded = true;
+	*/
 	return s;
 }
