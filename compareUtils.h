@@ -28,10 +28,8 @@ public:
 		}
 
 		TimerAnalyzer::start(TimeDiff);
-		size_t** f = new size_t* [len1];
-		for (size_t i = 0; i < len1; i++)
-			f[i] = new size_t [len2];
-		
+
+		size_t f[len1][len2];
 		for (size_t i = 0; i < len1; i++)
 		{
 			f[i][0] = 0;
@@ -40,7 +38,7 @@ public:
 		{
 			f[0][i] = 0;
 		}
-		
+
 		for (size_t i = 1; i < len1; i++)
 		{
 			for (size_t j = 1; j < len2; j++)
@@ -51,14 +49,9 @@ public:
 					f[i][j] = max(f[i][j - 1], f[i - 1][j]);
 			}
 		}
-		
-		size_t res = f[len1 - 1][len2 - 1];
-		
-		for (size_t i = 0; i < len1; i++)
-			delete [] f[i];
-		delete [] f;
+
 		TimerAnalyzer::stop(TimeDiff);
-		return res;
+		return f[len1 - 1][len2 - 1];
 	}
 };
 
