@@ -22,12 +22,12 @@ public:
 
 	template<class T1, class T2> static size_t longest_common_subsequence(T1 s1, size_t len1, T2 s2, size_t len2)
 	{
-		TimerAnalyzer::start(TimeDiff);
 		if ((len1 == 0) || (len2 == 0)) {
 			cerr << "WHOOPS! " << len1 << " " << len2 << endl;
 			return 0;
 		}
 
+		TimerAnalyzer::start(TimeDiff);
 		size_t** f = new size_t* [len1];
 		for (size_t i = 0; i < len1; i++)
 			f[i] = new size_t [len2];
