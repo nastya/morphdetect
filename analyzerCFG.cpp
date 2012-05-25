@@ -180,13 +180,15 @@ vector<InstructionInfo> AnalyzerCFG::buildInstructions(unsigned char* data, int 
 	while (myDisasm.EIP < (UIntPtr)(data + data_size))
 	{
 		int len = Disasm(&myDisasm);
+		/*
 		if (data == _data_processed)
 		{
-			//cout << myDisasm.CompleteInstr << endl;
+			cerr << myDisasm.CompleteInstr << endl;
 		}
+		*/
 		if (len == UNKNOWN_OPCODE)
 		{
-			cout<<"UNKNOWN_OPCODE"<<endl;
+			//cerr << "UNKNOWN_OPCODE" << endl;
 			break;
 		}
 		if (!myDisasm.Instruction.BranchType)
