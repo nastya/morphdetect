@@ -41,6 +41,7 @@ private:
 	FindDecryptor *_fd;
 	int _emulatorTypeCHM; //emulator type for changed memory
 	vector<block_info> _queue;
+	vector<int> _queue_level;
 	int _minLevel, _maxLevel;
 };
 #endif //__DETECT_SIMILAR_H

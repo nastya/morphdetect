@@ -49,6 +49,7 @@ void DetectSimilar::clear()
 	for (size_t cur = 0; cur < _queue.size(); cur++)
 		delete[] _queue[cur].first;
 	_queue.clear();
+	_queue_level.clear();
 }
 
 void DetectSimilar::link(const unsigned char* data, int data_size)
@@ -85,8 +86,12 @@ void DetectSimilar::unpack()
 	unsigned char* doc = new unsigned char[_data_size];
 	memcpy(doc, _data ,_data_size);
 	_queue.push_back(block_info(doc, _data_size));
+	_queue_level.push_back(0);
 	for (size_t cur = 0; cur < _queue.size(); cur++)
 	{
+		int level = _queue_level[cur];
+		if (level >= _maxLevel)
+			break;
 		//cerr << "Iteration " << cur << endl;
 		_fd->link(_queue[cur].first, _queue[cur].second);
 		if (_fd->find())
@@ -112,9 +117,8 @@ void DetectSimilar::unpack()
 				for (int i = 0; i < amount_shellcodes; i++)
 				{
 					_queue.push_back(block_info(shellcode[i], shellcode_size[i]));
+					_queue_level.push_back(level + 1);
 				}
-				if (_queue.size() >= (unsigned int)_maxLevel)
-					break;
 				delete[] shellcode;
 				delete[] shellcode_size;
 			}
@@ -131,8 +135,10 @@ string DetectSimilar::analyze()
 {
 	unpack();
 	cerr << "QUEUE SIZE: " << _queue.size() << endl;
-	for (unsigned int i = _minLevel; i < _queue.size() && i <= _maxLevel;  i++)
+	for (unsigned int i = 0; i < _queue.size();  i++)
 	{
+		if (_queue_level[i] < _minLevel)
+			continue;
 		/*ostringstream outstr;
 		outstr << "queue_" << i <<".dump";
 		ofstream out(outstr.str());
