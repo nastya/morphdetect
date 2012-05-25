@@ -67,10 +67,7 @@ vector<InstructionInfo> AnalyzerTrace::buildTrace(int pos, const unsigned char* 
 	r->link(buf, buf_size);
 	
 	Emulator_LibEmu* emulator;
-/*	if (dest_buf == _data_processed)
-		emulator = new Emulator_Qemu;
-	else*/
-		emulator = new Emulator_LibEmu;
+	emulator = new Emulator_LibEmu;
 	emulator -> bind(r);
 	emulator -> begin(pos);
 	char buff[10];
@@ -87,7 +84,6 @@ vector<InstructionInfo> AnalyzerTrace::buildTrace(int pos, const unsigned char* 
 			eip_passe[num]++;
 		else
 			eip_passe[num] = 1;
-		//cout << "EIP: 0x" << hex << num << endl;
 		int len = emulator -> get_command(buff);
 			
 		if (!len)
@@ -95,18 +91,14 @@ vector<InstructionInfo> AnalyzerTrace::buildTrace(int pos, const unsigned char* 
 			//cerr << "Execution error"<< endl;
 			break;
 		}
-		//num = emulator->get_register(Data::EIP);
 		if (!r->is_valid(num)) {
-			/*
-			if (dest_buf == _data_processed)
-				cerr << " Reached end of the memory block, stopping instance." << endl;
-			*/
 			break;
 		}
 		(void) memset (&(myDisasm), 0, sizeof(DISASM));
 		myDisasm.EIP = (UIntPtr) buff;
 		len = DisasmWrapper(&myDisasm);
-		/*cout << i << ": " << "EIP: 0x" << hex << num << " " << myDisasm.CompleteInstr << ", len = " << len << 
+		/*
+		cerr << i << ": " << "EIP: 0x" << hex << num << " " << myDisasm.CompleteInstr << ", len = " << len <<
 				", opcode " << myDisasm.Instruction.Opcode<< endl;
 		*/
 		if (len == UNKNOWN_OPCODE)
@@ -117,35 +109,16 @@ vector<InstructionInfo> AnalyzerTrace::buildTrace(int pos, const unsigned char* 
 		br_type = myDisasm.Instruction.BranchType;
 		if (myDisasm.Instruction.BranchType)
 			addr_value = myDisasm.Instruction.AddrValue - myDisasm.EIP;
-		/*
-		if ( (dest_buf == _data_processed) && ((myDisasm.Instruction.BranchType != JmpType) || (myDisasm.Instruction.AddrValue == 0)) )
-		{
-			char buffer[30];
-			cerr << i << ": " << "EIP: 0x" << hex << num << " " << myDisasm.CompleteInstr << ", len = " << len << 
-				", opcode " << myDisasm.Instruction.Opcode << endl;
-			emulator->get_memory(buffer, num, 30);
-			(void) memset (&(myDisasm), 0, sizeof(DISASM));
-			myDisasm.EIP = (UIntPtr) buffer;
-			for (int j = 0; j < 5; j++)
-			{
-				int len = DisasmWrapper(&myDisasm);
-				cerr << "    " << myDisasm.CompleteInstr << endl;
-				myDisasm.EIP = myDisasm.EIP + (UIntPtr) len;
-			}
-		}
-		*/
-		//cout<<"Len = " << len << endl;
 
 		if (!myDisasm.Instruction.BranchType)
 		{
 			instructions.push_back(InstructionInfo(&myDisasm, len));
 		}
 
-		//cout << "  Command: 0x" << hex << num << ": " << instruction_string(&inst, num) << endl;
 		int prev_eip = num;
 		if (!emulator -> step())
 		{
-//			cerr << "Execution error, skipping instruction" << endl;
+			//cerr << "Execution error, skipping instruction" << endl;
 			emulator->jump(prev_eip + len);
 			continue;
 		}
@@ -155,12 +128,12 @@ vector<InstructionInfo> AnalyzerTrace::buildTrace(int pos, const unsigned char* 
 		{
 			if (num != prev_eip + len)
 			{
-//				cerr << "Changing flow from " << num << " to " << prev_eip + len << endl;
+				//cerr << "Changing flow from " << num << " to " << prev_eip + len << endl;
 				emulator->jump(prev_eip + len);
 			}
 			else if (addr_value != 0)
 			{
-//				cerr << "Changing flow from " << num << " to " << prev_eip + len + addr_value << endl;
+				//cerr << "Changing flow from " << num << " to " << prev_eip + len + addr_value << endl;
 				emulator->jump(prev_eip + len + addr_value);
 			}
 		}
