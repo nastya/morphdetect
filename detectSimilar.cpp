@@ -96,7 +96,7 @@ void DetectSimilar::unpack()
 		_fd->link(_queue[cur].first, _queue[cur].second);
 		if (_fd->find())
 		{
-			cerr << "Decryptor found" << endl;
+			//cerr << "Decryptor found" << endl;
 			list <int> positions = _fd->get_start_list();
 			for (list <int>::iterator it = positions.begin(); it != positions.end(); it++)
 			{
@@ -123,18 +123,20 @@ void DetectSimilar::unpack()
 				delete[] shellcode_size;
 			}
 		}
+		/*
 		else
 		{
 			if (_queue.size() == 1)
 				cerr << "Decryptor not found" << endl;
 		}
+		*/
 	}
 }
 
 string DetectSimilar::analyze()
 {
 	unpack();
-	cerr << "QUEUE SIZE: " << _queue.size() << endl;
+	//cerr << "QUEUE SIZE: " << _queue.size() << endl;
 	for (unsigned int i = 0; i < _queue.size();  i++)
 	{
 		if (_queue_level[i] < _minLevel)
