@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 	int type = 1;
 	if (argc >= 4)
 		type = atoi(argv[3]);
-	DetectSimilar ds((DetectSimilar::AnalyzerType)(type));
+	DetectSimilar ds((DetectSimilar::AnalyzerType)(type), DetectSimilar::AnalyzerFlagBrute, (argc >= 5) ? atoi(argv[4]) : 0);
 	TimerAnalyzer::start(TimeLoadShellcodes);
 	if (argv[2][strlen(argv[2])-1] == '/')
 	{
