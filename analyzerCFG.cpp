@@ -60,6 +60,7 @@ void AnalyzerCFG::processShellcodes()
 	_shellcodeInstructions = new vector <InstructionInfo> [_amountShellcodes];
 	for (int i = 0; i < _amountShellcodes; i++)
 	{
+		_cache.clear();
 		_shellcodesProcessed[i] = new unsigned char [_shellcodeSizes[i] * 10];
 		buildCFG(0, _shellcodes[i], _shellcodeSizes[i], _shellcodesProcessed[i], &_shellcodesProcessedSizes[i]);
 		_shellcodeInstructions[i] = buildInstructions (_shellcodesProcessed[i], _shellcodesProcessedSizes[i]);
@@ -73,8 +74,7 @@ AnalyzerCFG::~AnalyzerCFG()
 
 void AnalyzerCFG::buildCFG(int pos, const unsigned char* buf, int buf_size, unsigned char* dest_buf, int* dest_size)
 {
-	DISASM myDisasm;
-	BlockInfo* root = new BlockInfo(&myDisasm, (UIntPtr) buf, 
+	BlockInfo* root = new BlockInfo(&_cache, (UIntPtr) buf,
 			(UIntPtr) (buf + buf_size), (UIntPtr)(buf + pos), true);
 	root->process();
 //	root->generateDot(string("cfg_initial.dot"));
@@ -152,6 +152,7 @@ string AnalyzerCFG::analyze()
 {
 	string ans;
 	_eips_passe.clear();
+	_cache.clear();
 	if (_brut)
 	{
 		for (int pos = 0; pos < _data_size - MIN_SHELLCODE_SIZE; pos++)

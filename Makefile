@@ -15,6 +15,7 @@ OBJECTS_LIB	= \
 		instructionInfo.o \
 		compareUtils.o \
 		detectSimilar.o \
+		cache.o \
 
 OBJECTS		= main.o $(OBJECTS_LIB)
 
@@ -53,6 +54,9 @@ analyzerTrace.o: analyzerTrace.cpp analyzerTrace.h analyzer.h instructionInfo.h 
 
 timer.o: timer.cpp timer.h
 	$(CXX) $(FLAGS) -c timer.cpp
+
+cache.o: cache.cpp cache.h
+	$(CXX) $(FLAGS) -c cache.cpp
 
 compareUtils.o: compareUtils.cpp compareUtils.h
 	$(CXX) $(FLAGS) -c compareUtils.cpp

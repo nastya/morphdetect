@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <set>
 #include "instructionInfo.h"
+#include "cache.h"
 
 class AnalyzerCFG : public Analyzer
 {
@@ -31,6 +32,7 @@ private:
 	vector <InstructionInfo> *_shellcodeInstructions;
 	set <int> _eips_passe;
 	bool _brut;
+	Cache _cache;
 };
 
 #endif //__ANALYZER_CFG_H

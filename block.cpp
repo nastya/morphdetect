@@ -4,8 +4,8 @@
 #include <iostream>
 #include <assert.h>
 
-BlockInfo::BlockInfo(DISASM* disasm, UIntPtr data_start, UIntPtr data_end, UIntPtr entry_point, bool resp)
-	:_data_start(data_start), _data_end(data_end), _first_block(true), _disasm(disasm)
+BlockInfo::BlockInfo(Cache* cache, UIntPtr data_start, UIntPtr data_end, UIntPtr entry_point, bool resp)
+	:_data_start(data_start), _data_end(data_end), _first_block(true), _cache(cache)
 {
 	_markResponsable = resp;
 	_subBlocks.push_back(SubBlock((entry_point == 0) ? data_start : entry_point, 0));
@@ -21,7 +21,7 @@ BlockInfo::BlockInfo(DISASM* disasm, UIntPtr data_start, UIntPtr data_end, UIntP
 
 BlockInfo::BlockInfo(BlockInfo* parent, UIntPtr entry_point)
 	: _data_start(parent->_data_start), _data_end(parent->_data_end),
-	_first_block(false), _mark(parent->_mark), _disasm(parent->_disasm), _normalizer(parent->_normalizer),
+	_first_block(false), _mark(parent->_mark), _cache(parent->_cache), _normalizer(parent->_normalizer),
 	_markResponsable(false)
 {
 	_from.insert(parent);
@@ -73,8 +73,8 @@ int BlockInfo::getProcessed(unsigned char*s)
 		extraQueue.erase(element);
 		for (vector<SubBlock>::iterator it = element->_subBlocks.begin(); it != element->_subBlocks.end(); ++it)
 		{
-			memcpy(s + len, (unsigned char*)(*it).entry_point, (*it).size);
-			len += (*it).size;
+			memcpy(s + len, (unsigned char *) it->entry_point, it->size);
+			len += it->size;
 		}
 		for (set<BlockInfo*>::iterator it = element->_to.begin(); it != element->_to.end(); ++it)
 		{
@@ -135,13 +135,11 @@ void BlockInfo::generateDot(ostream& out, set<BlockInfo *> *done)
 //	out<<(void*)this << " block"<<"\\n";
 	for (vector <SubBlock>::iterator it = _subBlocks.begin(); it != _subBlocks.end(); ++it)
 	{
-		(void) memset (&(*_disasm), 0, sizeof(DISASM));
-		(*_disasm).EIP = (*it).entry_point;
-		while ((*_disasm).EIP < (*it).entry_point + (UIntPtr)(*it).size)
+		int len;
+		for (UIntPtr eip = it->entry_point; eip < it->entry_point + it->size; eip += len)
 		{
-			int len = DisasmWrapper(&(*_disasm));
-			out<< (*_disasm).CompleteInstr<< "\\n";
-			(*_disasm).EIP = (*_disasm).EIP + (UIntPtr) len;
+			DISASM *disasm = _cache->getInstruction(eip, &len);
+			out << disasm->CompleteInstr << "\\n";
 		}
 	}
 	out<<"\"]"<<endl;
@@ -167,13 +165,11 @@ void BlockInfo::_getEIPSPasse(set <int>* s, set <BlockInfo*> *done)
 {
 	for (vector <SubBlock>::iterator it = _subBlocks.begin(); it != _subBlocks.end(); ++it)
 	{
-		(void) memset (&(*_disasm), 0, sizeof(DISASM));
-		(*_disasm).EIP = (*it).entry_point;
-		while ((*_disasm).EIP < (*it).entry_point + (UIntPtr)(*it).size)
+		int len;
+		for (UIntPtr eip = it->entry_point; eip < it->entry_point + it->size; eip += len)
 		{
-			s->insert((*_disasm).EIP - _data_start);
-			int len = DisasmWrapper(&(*_disasm));
-			(*_disasm).EIP = (*_disasm).EIP + (UIntPtr) len;
+			s->insert(eip - _data_start);
+			_cache->getInstruction(eip, &len);
 		}
 	}
 	done->insert(this);
@@ -260,69 +256,64 @@ void BlockInfo::process()
 	assert(_subBlocks.size() == 1);
 	assert(_subBlocks[0].size == 0);
 
-	(void) memset (&(*_disasm), 0, sizeof(DISASM));
-	(*_disasm).EIP = _subBlocks[0].entry_point;
-	//cerr<<"Entry point: "<<(*_disasm).EIP<<endl;
-	while ((*_disasm).EIP < _data_end)
+	//cerr << "Entry point: " << _subBlocks[0].entry_point << endl;
+	int len;
+	UIntPtr eip = _subBlocks[0].entry_point;
+	for (; eip < _data_end; eip += len)
 	{
-		if (_mark[(*_disasm).EIP - _data_start] != NULL)
+		if (_mark[eip - _data_start] != NULL)
 		{
-			BlockInfo* oldBlock = _mark[(*_disasm).EIP - _data_start];
-			//cerr<<"went to block"<<(void*)oldBlock<<"at the point"<<(*_disasm).EIP<<endl;
-			BlockInfo* newBlock = oldBlock->divideBlock((*_disasm).EIP);
-			//cerr<<"this block after division"<<(void*)newBlock<<endl;
-			_subBlocks[0].size = (*_disasm).EIP - _subBlocks[0].entry_point;
+			BlockInfo* oldBlock = _mark[eip - _data_start];
+			//cerr << "went to block" << (void *) oldBlock << "at the point" << eip << endl;
+			BlockInfo* newBlock = oldBlock->divideBlock(eip);
+			//cerr << "this block after division" << (void *) newBlock << endl;
+			_subBlocks[0].size = eip - _subBlocks[0].entry_point;
 			newBlock->_from.insert(this);
 			_to.insert(newBlock);
 			return;
 		}
-		
-		int len = DisasmWrapper(&(*_disasm));
+		_mark[eip - _data_start] = this;
 
-		if ((len != UNKNOWN_OPCODE) && (((*_disasm).Instruction.Category & 0xFFFF0000) == SYSTEM_INSTRUCTION))
-		{
-			//TODO: check if it is really unuseful and not allowed
-			len = UNKNOWN_OPCODE;
-			
-		}
+		DISASM *disasm = _cache->getInstruction(eip, &len);
 
-		if (len != UNKNOWN_OPCODE)
+		if (len == UNKNOWN_OPCODE)
 		{
-			//cerr<<(*_disasm).CompleteInstr<<endl;
-			_mark[(*_disasm).EIP - _data_start] = this;
-			if ((*_disasm).Instruction.BranchType)
-			{
-				//cerr<<"Branch Type"<<endl;
-				_subBlocks[0].size = (*_disasm).EIP + (UIntPtr) len - _subBlocks[0].entry_point;
-				UIntPtr addrToJump = (*_disasm).Instruction.AddrValue;
-				UIntPtr curAddr = (*_disasm).EIP;
-				if ((*_disasm).Instruction.AddrValue == 0)
-					return;
-				switch ((*_disasm).Instruction.BranchType)
-				{
-					case CallType:
-					case JmpType:
-						_mark[curAddr - _data_start]->addBranch(addrToJump, curAddr);
-						break;
-					case RetType:
-						//cerr<<"Ret type"<<endl;
-						break;
-					default:
-						_mark[curAddr - _data_start]->addBranch(curAddr + (UIntPtr)len, curAddr);
-						_mark[curAddr - _data_start]->addBranch(addrToJump, curAddr);
-				}
-				return;
-			}
-			(*_disasm).EIP = (*_disasm).EIP + (UIntPtr) len;
-		}
-		else
-		{
-			//cerr<<"ERROR"<<endl;
-			_mark[(*_disasm).EIP - _data_start] = this;
+			//cerr << "ERROR" << endl;
 			break;
 		}
+
+		if ((disasm->Instruction.Category & 0xFFFF0000) == SYSTEM_INSTRUCTION)
+		{
+			//TODO: check if it is really unuseful and not allowed
+			break;
+		}
+
+		//cerr << disasm->CompleteInstr << endl;
+		if (disasm->Instruction.BranchType)
+		{
+			//cerr<<"Branch Type"<<endl;
+			_subBlocks[0].size = eip + (UIntPtr) len - _subBlocks[0].entry_point;
+			UIntPtr addrToJump = disasm->Instruction.AddrValue;
+			UIntPtr curAddr = eip;
+			if (disasm->Instruction.AddrValue == 0)
+				return;
+			switch (disasm->Instruction.BranchType)
+			{
+				case CallType:
+				case JmpType:
+					_mark[curAddr - _data_start]->addBranch(addrToJump, curAddr);
+					break;
+				case RetType:
+					//cerr<<"Ret type"<<endl;
+					break;
+				default:
+					_mark[curAddr - _data_start]->addBranch(curAddr + (UIntPtr)len, curAddr);
+					_mark[curAddr - _data_start]->addBranch(addrToJump, curAddr);
+			}
+			return;
+		}
 	}
-	_subBlocks[0].size = (*_disasm).EIP - _subBlocks[0].entry_point;
+	_subBlocks[0].size = eip - _subBlocks[0].entry_point;
 	//cerr<<"Reached the end"<<endl;
 }
 
@@ -363,26 +354,26 @@ void BlockInfo::clearOppositeInstructions(set <BlockInfo* > *done, map<string, s
 vector<BlockInfo::SubBlock>::iterator BlockInfo::cutSubBlock(vector<BlockInfo::SubBlock>::iterator it, 
 							     UIntPtr addr, int len)
 {
-	if (addr != (*it).entry_point)
+	if (addr != it->entry_point)
 	{
-		if (addr + (UIntPtr) len < (*it).entry_point + (*it).size)
+		if (addr + (UIntPtr) len < it->entry_point + it->size)
 		{
-			int newsize = (*it).size - (addr - (*it).entry_point) - len;
-			(*it).size = addr - (*it).entry_point;
+			int newsize = it->size - (addr - it->entry_point) - len;
+			it->size = addr - it->entry_point;
 			++it;
 			return _subBlocks.insert(it, SubBlock(addr + (UIntPtr)len, newsize));
 		}
 		else
 		{
-			(*it).size = addr - (*it).entry_point;
+			it->size = addr - it->entry_point;
 			return ++it;
 		}
 	}
 	else
 	{
-		if (addr + (UIntPtr) len < (*it).entry_point + (*it).size)
+		if (addr + (UIntPtr) len < it->entry_point + it->size)
 		{
-			(*it).entry_point = addr + (UIntPtr) len;
+			it->entry_point = addr + (UIntPtr) len;
 			return ++it;
 		}
 		else
@@ -404,17 +395,17 @@ void BlockInfo::_clearOppositeInstructions(map<string, string>* opposite)
 	vector <SubBlock>::iterator prev_subblock = _subBlocks.begin();
 	for (vector <SubBlock>::iterator it = _subBlocks.begin(); it != _subBlocks.end(); )
 	{
-		(void) memset (&(*_disasm), 0, sizeof(DISASM));
-		(*_disasm).EIP = (*it).entry_point;
 		bool it_changed = false;
-		while ((*_disasm).EIP < (*it).entry_point + (*it).size)
+		int len;
+		for (UIntPtr eip = it->entry_point; eip < it->entry_point + it->size; eip += len)
 		{
-			int len = DisasmWrapper(&(*_disasm));
-			if (opposite->count((*_disasm).Instruction.Mnemonic) && 
-				strcmp(prev_mnem, (*opposite)[(*_disasm).Instruction.Mnemonic].c_str()) == 0 && 
-				strcmp(prev_arg_mnem1, (*_disasm).Argument1.ArgMnemonic) == 0 &&
-				strcmp(prev_arg_mnem2, (*_disasm).Argument2.ArgMnemonic) == 0 &&
-				strcmp(prev_arg_mnem3, (*_disasm).Argument3.ArgMnemonic) == 0
+			DISASM *disasm = _cache->getInstruction(eip, &len);
+
+			if (opposite->count(disasm->Instruction.Mnemonic) && 
+				strcmp(prev_mnem, (*opposite)[disasm->Instruction.Mnemonic].c_str()) == 0 && 
+				strcmp(prev_arg_mnem1, disasm->Argument1.ArgMnemonic) == 0 &&
+				strcmp(prev_arg_mnem2, disasm->Argument2.ArgMnemonic) == 0 &&
+				strcmp(prev_arg_mnem3, disasm->Argument3.ArgMnemonic) == 0
 			)
 			{
 				////cerr<<"Cutting from block"<<(void *)this<<endl;
@@ -425,7 +416,7 @@ void BlockInfo::_clearOppositeInstructions(map<string, string>* opposite)
 				else
 				{
 					it = cutSubBlock(prev_subblock, prev_addr, prev_len);
-					it = cutSubBlock(it, (*_disasm).EIP, len);
+					it = cutSubBlock(it, eip, len);
 				}
 				prev_subblock = it;
 				prev_mnem[0]='\0';
@@ -437,17 +428,13 @@ void BlockInfo::_clearOppositeInstructions(map<string, string>* opposite)
 				it_changed = true;
 				break;
 			}
-			else
-			{
-				prev_len = len;
-				prev_addr = (*_disasm).EIP;
-				strcpy(prev_mnem, (*_disasm).Instruction.Mnemonic);
-				strcpy(prev_arg_mnem1, (*_disasm).Argument1.ArgMnemonic);
-				strcpy(prev_arg_mnem2, (*_disasm).Argument2.ArgMnemonic);
-				strcpy(prev_arg_mnem3, (*_disasm).Argument3.ArgMnemonic);
-				prev_subblock = it;
-				(*_disasm).EIP = (*_disasm).EIP + (UIntPtr) len;
-			}
+			prev_len = len;
+			prev_addr = eip;
+			strcpy(prev_mnem, disasm->Instruction.Mnemonic);
+			strcpy(prev_arg_mnem1, disasm->Argument1.ArgMnemonic);
+			strcpy(prev_arg_mnem2, disasm->Argument2.ArgMnemonic);
+			strcpy(prev_arg_mnem3, disasm->Argument3.ArgMnemonic);
+			prev_subblock = it;
 		}
 		if (!it_changed)
 			++it;
@@ -493,22 +480,20 @@ void BlockInfo::mergeBlocks(set<BlockInfo*> *done)
 bool BlockInfo::isDirectJx(UIntPtr* addr, int* type)
 {
 	assert(_subBlocks.size() == 1);
-	(void) memset (&(*_disasm), 0, sizeof(DISASM));
-	(*_disasm).EIP = _subBlocks[0].entry_point;
 	int count = 0;
 	bool jump = false;
-	while ((*_disasm).EIP < _subBlocks[0].entry_point + (UIntPtr) _subBlocks[0].size)
+	int len;
+	for (UIntPtr eip = _subBlocks[0].entry_point; eip < _subBlocks[0].entry_point + _subBlocks[0].size; eip += len)
 	{
-		int len = DisasmWrapper(&(*_disasm));
-		if ((*_disasm).Instruction.BranchType && (*_disasm).Instruction.AddrValue != 0 &&
-			(*_disasm).Instruction.BranchType != CallType && (*_disasm).Instruction.BranchType != RetType &&
-			(*_disasm).Instruction.BranchType != JECXZ && (*_disasm).Instruction.BranchType != JmpType)
+		DISASM *disasm = _cache->getInstruction(eip, &len);
+		if (disasm->Instruction.BranchType && disasm->Instruction.AddrValue != 0 &&
+			disasm->Instruction.BranchType != CallType && disasm->Instruction.BranchType != RetType &&
+			disasm->Instruction.BranchType != JECXZ && disasm->Instruction.BranchType != JmpType)
 		{
 			jump = true;
-			(*addr) = (*_disasm).Instruction.AddrValue;
-			(*type) = (*_disasm).Instruction.BranchType;
+			(*addr) = disasm->Instruction.AddrValue;
+			(*type) = disasm->Instruction.BranchType;
 		}
-		(*_disasm).EIP = (*_disasm).EIP + (UIntPtr)len;
 		count++;
 	}
 	if (count == 0 || ((count == 1) && jump) )
@@ -590,17 +575,15 @@ BlockInfo* BlockInfo::removeJxJnx(set<BlockInfo*> *done)
 
 void BlockInfo::removeJumpsInside()
 {
-	(void) memset (&(*_disasm), 0, sizeof(DISASM));
-	(*_disasm).EIP = _subBlocks[0].entry_point;
-	while ((*_disasm).EIP < _subBlocks[0].entry_point + (UIntPtr)_subBlocks[0].size)
+	int len;
+	for (UIntPtr eip = _subBlocks[0].entry_point; eip < _subBlocks[0].entry_point + _subBlocks[0].size; eip += len)
 	{
-		int len = DisasmWrapper(&(*_disasm));
-		if ((*_disasm).Instruction.BranchType == JmpType && (*_disasm).Instruction.AddrValue != 0)
+		DISASM *disasm = _cache->getInstruction(eip, &len);
+		if (disasm->Instruction.BranchType == JmpType && disasm->Instruction.AddrValue != 0)
 		{
-			_subBlocks[0].size = (*_disasm).EIP - _subBlocks[0].entry_point;
+			_subBlocks[0].size = eip - _subBlocks[0].entry_point;
 			break;
 		}
-		(*_disasm).EIP = (*_disasm).EIP + (UIntPtr)len;
 	}
 }
 
@@ -623,18 +606,16 @@ BlockInfo* BlockInfo::removeJumpsOnly(set<BlockInfo*> *done)
 	/*if (((_from.size() == 1 && (*_from.begin())->_to.size() == 1) || _from.size() == 0) &&
 		((_to.size() == 1 && (*_to.begin())->_from.size() == 1) || _to.size() == 0))*/
 	{
-		(void) memset (&(*_disasm), 0, sizeof(DISASM));
-		(*_disasm).EIP = _subBlocks[0].entry_point;
 		int count = 0;
 		bool jump = false;
-		while ((*_disasm).EIP < _subBlocks[0].entry_point + (UIntPtr) _subBlocks[0].size)
+		int len;
+		for (UIntPtr eip = _subBlocks[0].entry_point; eip < _subBlocks[0].entry_point + _subBlocks[0].size; eip += len)
 		{
-			int len = DisasmWrapper(&(*_disasm));
-			if ((*_disasm).Instruction.BranchType == JmpType && (*_disasm).Instruction.AddrValue != 0)
+			DISASM *disasm = _cache->getInstruction(eip, &len);
+			if (disasm->Instruction.BranchType == JmpType && disasm->Instruction.AddrValue != 0)
 			{
 				jump = true;
 			}
-			(*_disasm).EIP = (*_disasm).EIP + (UIntPtr)len;
 			count++;
 		}
 		if ((count == 1 && jump) || (count == 0))

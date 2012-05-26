@@ -8,6 +8,7 @@
 #include "normalizer.h"
 #include <map>
 #include <string>
+#include "cache.h"
 using namespace std;
 
 class Normalizer;
@@ -15,7 +16,7 @@ class Normalizer;
 class BlockInfo
 {
 public:
-	BlockInfo(DISASM* disasm, UIntPtr data_start, UIntPtr data_end, UIntPtr entry_point, bool resp);
+	BlockInfo(Cache* cache, UIntPtr data_start, UIntPtr data_end, UIntPtr entry_point, bool resp);
 	BlockInfo(BlockInfo* parent, UIntPtr entry_point);
 	~BlockInfo();
 	void generateDot(string filename, vector <BlockInfo*>* roots = NULL);
@@ -65,7 +66,7 @@ private:
 	set <BlockInfo*> _from;
 	bool _first_block;
 	BlockInfo** _mark;
-	DISASM* _disasm;
+	Cache* _cache;
 	vector <SubBlock> _subBlocks;
 	Normalizer* _normalizer;
 	bool _markResponsable;
