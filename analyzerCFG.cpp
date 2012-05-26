@@ -61,10 +61,7 @@ vector<InstructionInfo> AnalyzerCFG::buildCFG(int pos, const unsigned char* buf,
 			(UIntPtr) (buf + buf_size), (UIntPtr)(buf + pos), true);
 	root->process();
 //	root->generateDot(string("cfg_initial.dot"));
-	set <int> eips;
-	root->getEIPSPasse(&eips);
-	for (set <int>::iterator it = eips.begin(); it != eips.end(); ++it)
-		_eips_passe.insert(*it);
+	root->getEIPSPasse(&_eips_passe);
 	root = root->removeJumpsOnly();
 //	root->generateDot(string("cfg_without_jumps.dot"));
 	root->normalize();
