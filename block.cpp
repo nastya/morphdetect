@@ -53,14 +53,14 @@ BlockInfo::~BlockInfo()
 	}
 }
 
-int BlockInfo::getProcessed(unsigned char*s)
+vector<InstructionInfo> BlockInfo::getInstructions()
 {
+	vector<InstructionInfo> instructions;
 	set <BlockInfo*> queue;
 	set <BlockInfo*> extraQueue;
 	queue.insert(this);
 	extraQueue.insert(this);
 	set <BlockInfo*> marked;
-	int len = 0;
 	BlockInfo* element;
 	while (!queue.empty() || !extraQueue.empty())
 	{
@@ -73,8 +73,18 @@ int BlockInfo::getProcessed(unsigned char*s)
 		extraQueue.erase(element);
 		for (vector<SubBlock>::iterator it = element->_subBlocks.begin(); it != element->_subBlocks.end(); ++it)
 		{
-			memcpy(s + len, (unsigned char *) it->entry_point, it->size);
-			len += it->size;
+			int len;
+			for (UIntPtr eip = it->entry_point; eip < it->entry_point + it->size; eip += len)
+			{
+				DISASM *disasm = _cache->getInstruction(eip, &len);
+				if (len == UNKNOWN_OPCODE)
+				{
+					//cerr << "UNKNOWN_OPCODE" << endl;
+					break;
+				}
+				if (!disasm->Instruction.BranchType)
+					instructions.push_back(InstructionInfo(disasm, len));
+			}
 		}
 		for (set<BlockInfo*>::iterator it = element->_to.begin(); it != element->_to.end(); ++it)
 		{
@@ -97,7 +107,7 @@ int BlockInfo::getProcessed(unsigned char*s)
 			}
 		}
 	}
-	return len;
+	return instructions;
 }
 
 bool BlockInfo::isMarked(UIntPtr addr)

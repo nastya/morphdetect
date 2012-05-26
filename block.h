@@ -9,6 +9,7 @@
 #include <map>
 #include <string>
 #include "cache.h"
+#include "instructionInfo.h"
 using namespace std;
 
 class Normalizer;
@@ -29,7 +30,7 @@ public:
 	void normalize();
 	bool isMarked(UIntPtr);
 	void copyMark(BlockInfo*);
-	int getProcessed(unsigned char*s);
+	vector<InstructionInfo> getInstructions();
 	void getEIPSPasse(set <int>* s);
 private:
 	struct SubBlock 

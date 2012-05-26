@@ -13,18 +13,14 @@ using namespace std;
 
 AnalyzerCFG::AnalyzerCFG(bool brut): _brut(brut)
 {
-	_data_processed_len = 0;
-	_data_processed = NULL;
-	_shellcodesProcessed = NULL;
+	_shellcodeInstructions = NULL;
 	_className = "AnalyzerCFG";
 }
 
 AnalyzerCFG::AnalyzerCFG(const unsigned char* data, uint size)
 	: Analyzer(data, size), _brut(true)
 {
-	_data_processed_len = 0;
-	_data_processed = NULL;
-	_shellcodesProcessed = NULL;
+	_shellcodeInstructions = NULL;
 	_className = "AnalyzerCFG";
 	
 }
@@ -39,31 +35,18 @@ void AnalyzerCFG::loadShellcodes(char * dirname)
 void AnalyzerCFG::clear()
 {
 	Analyzer::clear();
-	if (_data_processed != NULL)
-		delete [] _data_processed;
-	_data_processed = NULL;
-	if (_shellcodesProcessed != NULL)
-	{
-		for (int i = 0; i < _amountShellcodes; i++)
-			delete [] _shellcodesProcessed[i];
-		delete [] _shellcodesProcessed;
-		delete [] _shellcodesProcessedSizes;
+	if (_shellcodeInstructions != NULL)
 		delete [] _shellcodeInstructions;
-	}
-	_shellcodesProcessed = NULL;
+	_shellcodeInstructions = NULL;
 }
 
 void AnalyzerCFG::processShellcodes()
 {
-	_shellcodesProcessed = new unsigned char* [_amountShellcodes];
-	_shellcodesProcessedSizes = new int [_amountShellcodes];
 	_shellcodeInstructions = new vector <InstructionInfo> [_amountShellcodes];
 	for (int i = 0; i < _amountShellcodes; i++)
 	{
 		_cache.clear();
-		_shellcodesProcessed[i] = new unsigned char [_shellcodeSizes[i] * 10];
-		buildCFG(0, _shellcodes[i], _shellcodeSizes[i], _shellcodesProcessed[i], &_shellcodesProcessedSizes[i]);
-		_shellcodeInstructions[i] = buildInstructions (_shellcodesProcessed[i], _shellcodesProcessedSizes[i]);
+		_shellcodeInstructions[i] = buildCFG(0, _shellcodes[i], _shellcodeSizes[i]);
 	}
 }
 
@@ -72,7 +55,7 @@ AnalyzerCFG::~AnalyzerCFG()
 	clear();
 }
 
-void AnalyzerCFG::buildCFG(int pos, const unsigned char* buf, int buf_size, unsigned char* dest_buf, int* dest_size)
+vector<InstructionInfo> AnalyzerCFG::buildCFG(int pos, const unsigned char* buf, int buf_size)
 {
 	BlockInfo* root = new BlockInfo(&_cache, (UIntPtr) buf,
 			(UIntPtr) (buf + buf_size), (UIntPtr)(buf + pos), true);
@@ -104,19 +87,15 @@ void AnalyzerCFG::buildCFG(int pos, const unsigned char* buf, int buf_size, unsi
 	
 	root->clearOppositeInstructions(&opposite);
 	
-	*dest_size = root->getProcessed(dest_buf);
+	vector <InstructionInfo> instructions = root->getInstructions();
 	delete root;
+	return instructions;
 }
 
 string AnalyzerCFG::analyze_single(int pos)
 {
 	//cerr << "analyze_single launched! POS: " << pos << endl;
-	if (_data_processed != NULL)
-		delete [] _data_processed;
-	_data_processed = new unsigned char [_data_size * 10];
-	buildCFG(pos, _data, _data_size, _data_processed, &_data_processed_len);
-	//cout << "Destination buffer size " << _data_processed_len << endl;
-	_instructions = buildInstructions(_data_processed, _data_processed_len);
+	_instructions = buildCFG(pos, _data, _data_size);
 	if (_instructions.size() == 0) {
 		return string();
 	}
@@ -125,8 +104,6 @@ string AnalyzerCFG::analyze_single(int pos)
 	int ind_max = 0;
 	for (int i = 0; i < _amountShellcodes; i++)
 	{
-		//int ans = CompareUtils::longest_common_subsequence(_data_processed, _data_processed_len,
-		//				     _shellcodesProcessed[i], _shellcodesProcessedSizes[i]);
 		int ans = CompareUtils::longest_common_subsequence(_instructions, _shellcodeInstructions[i]);
 		//cout<<_shellcodeNames[i]<<": len = "<< _shellcodeInstructions[i].size();
 		//cout<<", ans = "<<ans;
@@ -171,34 +148,6 @@ string AnalyzerCFG::analyze()
 	}
 	_eips_passe.clear();
 	return ans;
-}
-
-vector<InstructionInfo> AnalyzerCFG::buildInstructions(unsigned char* data, int data_size)
-{
-	DISASM myDisasm;
-	(void) memset (&(myDisasm), 0, sizeof(DISASM));
-	myDisasm.EIP = (UIntPtr) data;
-	vector <InstructionInfo> instructions;
-	while (myDisasm.EIP < (UIntPtr)(data + data_size))
-	{
-		int len = DisasmWrapper(&myDisasm);
-		/*
-		if (data == _data_processed)
-		{
-			cerr << myDisasm.CompleteInstr << endl;
-		}
-		*/
-		if (len == UNKNOWN_OPCODE)
-		{
-			//cerr << "UNKNOWN_OPCODE" << endl;
-			break;
-		}
-		if (!myDisasm.Instruction.BranchType)
-			instructions.push_back(InstructionInfo(&myDisasm, len));
-		//out<< (*_disasm).CompleteInstr<< "\\n";
-		myDisasm.EIP = myDisasm.EIP + (UIntPtr) len;
-	}
-	return instructions;
 }
 
 ostream & AnalyzerCFG::operator<<(ostream &s)
