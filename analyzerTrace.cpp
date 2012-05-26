@@ -107,13 +107,13 @@ vector<InstructionInfo> AnalyzerTrace::buildTrace(int pos, const unsigned char* 
 			break;
 		}
 		br_type = myDisasm.Instruction.BranchType;
-		if (myDisasm.Instruction.BranchType)
+		if (br_type)
 			addr_value = myDisasm.Instruction.AddrValue - myDisasm.EIP;
 
-		if (!myDisasm.Instruction.BranchType)
-		{
+		if (	!br_type &&
+			myDisasm.Instruction.Opcode != 0x00 && // 0x00 = probably junk
+			myDisasm.Instruction.Opcode != 0x90) // 0x90 = NOP
 			instructions.push_back(InstructionInfo(&myDisasm, len));
-		}
 
 		int prev_eip = num;
 		if (!emulator -> step())

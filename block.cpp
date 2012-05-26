@@ -82,7 +82,9 @@ vector<InstructionInfo> BlockInfo::getInstructions()
 					//cerr << "UNKNOWN_OPCODE" << endl;
 					break;
 				}
-				if (!disasm->Instruction.BranchType)
+				if (	!disasm->Instruction.BranchType &&
+					disasm->Instruction.Opcode != 0x00 && // 0x00 = probably junk
+					disasm->Instruction.Opcode != 0x90) // 0x90 = NOP
 					instructions.push_back(InstructionInfo(disasm, len));
 			}
 		}
@@ -94,7 +96,7 @@ vector<InstructionInfo> BlockInfo::getInstructions()
 				bool add = true;
 				for (set<BlockInfo*>::iterator par = (*it)->_from.begin(); par != (*it)->_from.end(); ++par)
 				{
-					if (!(*par == *it) && !(marked.count(*par)))
+					if ((*par != *it) && !(marked.count(*par)))
 					{
 						add = false;
 						break;
@@ -540,13 +542,12 @@ BlockInfo* BlockInfo::removeJxJnx(set<BlockInfo*> *done)
 	if (isDirectJx(&addrJx, &jxtype))
 	{
 		bool caseJxJnx = false;
-		BlockInfo *blockJnx, *suc_block = NULL;
+		BlockInfo *suc_block = NULL;
 		for (set <BlockInfo*>::iterator it_jnx = _to.begin(); it_jnx != _to.end(); ++it_jnx)
 		{
 			if ((*it_jnx)->isDirectJx(&addrJnx,&jnxtype) && (jxtype == -jnxtype) && (addrJx == addrJnx) &&
 				(*it_jnx)->_from.size() == 1)
 			{
-				blockJnx = (*it_jnx);
 				caseJxJnx = true;
 			}
 			else
