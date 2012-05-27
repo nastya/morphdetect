@@ -1,7 +1,7 @@
 #ifndef __CACHE_H
 #define __CACHE_H
 #include <beaengine/BeaEngine.h>
-#include <map>
+#include <unordered_map>
 
 using namespace std;
 
@@ -17,7 +17,7 @@ public:
 	DISASM* getInstruction(UIntPtr addr, int *length = NULL);
 	void clear();
 private:
-	map<UIntPtr, Disassembler> m;
+	unordered_map<UIntPtr, Disassembler> m;
 };
 
 #endif //__CACHE_H

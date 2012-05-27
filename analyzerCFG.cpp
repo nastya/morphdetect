@@ -3,7 +3,7 @@
 #include "compareUtils.h"
 #include "wrappers.h"
 #include "timer.h"
-#include <map>
+#include <unordered_map>
 #include <iostream>
 #include <cstring>
 
@@ -73,7 +73,7 @@ InstructionQueue AnalyzerCFG::buildCFG(int pos, const unsigned char* buf, int bu
 	root->mergeBlocks();	
 	root->normalize();
 //	root->generateDot(string("cfg_merged.dot"));
-	map<string, string> opposite;
+	unordered_map<string, string> opposite;
 	opposite["add "] = "sub ";
 	opposite["sub "] = "add ";
 	opposite["xor "] = "xor ";

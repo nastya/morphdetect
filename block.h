@@ -6,7 +6,7 @@
 #include <fstream>
 #include <beaengine/BeaEngine.h>
 #include "normalizer.h"
-#include <map>
+#include <unordered_map>
 #include <string>
 #include "cache.h"
 #include "instructionQueue.h"
@@ -26,7 +26,7 @@ public:
 	BlockInfo* removeJxJnx();
 	void mergeBlocks();
 	void dfs(set <BlockInfo*> *done);
-	void clearOppositeInstructions(map<string, string> *);
+	void clearOppositeInstructions(unordered_map<string, string> *);
 	void normalize();
 	bool isMarked(UIntPtr);
 	void copyMark(BlockInfo*);
@@ -44,8 +44,8 @@ private:
 	
 	vector<BlockInfo::SubBlock>::iterator cutSubBlock(vector<BlockInfo::SubBlock>::iterator it, UIntPtr addr, int len);
 
-	void clearOppositeInstructions(set <BlockInfo* > *done, map<string, string>* opposite);
-	void _clearOppositeInstructions(map<string, string> *);
+	void clearOppositeInstructions(set <BlockInfo* > *done, unordered_map<string, string>* opposite);
+	void _clearOppositeInstructions(unordered_map<string, string> *);
 	
 	void removeJumpsInside();	
 	void mergeBlocks(set<BlockInfo*> *done);

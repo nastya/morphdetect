@@ -346,13 +346,13 @@ void BlockInfo::mergeBlocks()
 	_normalizer->normalize();
 }
 
-void BlockInfo::clearOppositeInstructions(map<string, string>* opposite)
+void BlockInfo::clearOppositeInstructions(unordered_map<string, string>* opposite)
 {
 	set <BlockInfo*> done;
 	clearOppositeInstructions(&done, opposite);
 }
 
-void BlockInfo::clearOppositeInstructions(set <BlockInfo* > *done, map<string, string>* opposite)
+void BlockInfo::clearOppositeInstructions(set <BlockInfo* > *done, unordered_map<string, string>* opposite)
 {
 	done->insert(this);
 	_clearOppositeInstructions(opposite);
@@ -395,7 +395,7 @@ vector<BlockInfo::SubBlock>::iterator BlockInfo::cutSubBlock(vector<BlockInfo::S
 	}
 }
 
-void BlockInfo::_clearOppositeInstructions(map<string, string>* opposite)
+void BlockInfo::_clearOppositeInstructions(unordered_map<string, string>* opposite)
 {
 	char prev_mnem[16], prev_arg_mnem1[32], prev_arg_mnem2[32], prev_arg_mnem3[32];
 	prev_mnem[0]='\0';
