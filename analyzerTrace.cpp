@@ -85,9 +85,7 @@ InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, in
 			eip_passe[num]++;
 		else
 			eip_passe[num] = 1;
-		int len = emulator -> get_command(buff);
-			
-		if (!len)
+		if (!emulator->get_command(buff))
 		{
 			//cerr << "Execution error"<< endl;
 			break;
@@ -97,7 +95,7 @@ InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, in
 		}
 		(void) memset (&(myDisasm), 0, sizeof(DISASM));
 		myDisasm.EIP = (UIntPtr) buff;
-		len = DisasmWrapper(&myDisasm);
+		int len = DisasmWrapper(&myDisasm);
 		/*
 		cerr << i << ": " << "EIP: 0x" << hex << num << " " << myDisasm.CompleteInstr << ", len = " << len <<
 				", opcode " << myDisasm.Instruction.Opcode<< endl;
