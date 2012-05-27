@@ -34,14 +34,17 @@ int InstructionQueue::bestMatch(InstructionQueue *models, int models_count, floa
 
 		int ans = CompareUtils::longest_common_subsequence(*this, models[i]);
 		float coef = ans * 1.0 / models[i].size();
-		if (coef > max_coef)
-		{
-			max_coef = coef;
-		}
-		if (ans > max_ans)
-		{
-			max_ans = ans;
-			ind_max = i;
+
+		if (coef > threshold) {
+			if (coef > max_coef)
+			{
+				max_coef = coef;
+			}
+			if (ans > max_ans)
+			{
+				max_ans = ans;
+				ind_max = i;
+			}
 		}
 	}
 

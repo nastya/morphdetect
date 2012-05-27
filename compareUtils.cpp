@@ -44,14 +44,17 @@ size_t CompareUtils::best_match_simple(const mbyte *sample, size_t sample_size, 
 	{
 		int ans = compare_simple(sample_stat, models[i], model_sizes[i]);
 		float coef = ans * 1.0 / model_sizes[i];
-		if (coef > max_coef)
-		{
-			max_coef = coef;
-		}
-		if (ans > max_ans)
-		{
-			max_ans = ans;
-			ind_max = i;
+
+		if (coef > threshold) {
+			if (coef > max_coef)
+			{
+				max_coef = coef;
+			}
+			if (ans > max_ans)
+			{
+				max_ans = ans;
+				ind_max = i;
+			}
 		}
 	}
 
@@ -116,14 +119,17 @@ size_t CompareUtils::best_match(const mbyte *sample, size_t sample_size, const m
 	{
 		int ans = compare_diff(sample, sample_size, models[i], model_sizes[i], threshold);
 		float coef = ans * 1.0 / model_sizes[i];
-		if (coef > max_coef)
-		{
-			max_coef = coef;
-		}
-		if (ans > max_ans)
-		{
-			max_ans = ans;
-			ind_max = i;
+
+		if (coef > threshold) {
+			if (coef > max_coef)
+			{
+				max_coef = coef;
+			}
+			if (ans > max_ans)
+			{
+				max_ans = ans;
+				ind_max = i;
+			}
 		}
 	}
 
