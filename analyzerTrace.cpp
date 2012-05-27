@@ -48,7 +48,7 @@ void AnalyzerTrace::clear()
 
 void AnalyzerTrace::processShellcodes()
 {
-	_shellcodeInstructions = new vector <InstructionInfo> [_amountShellcodes];
+	_shellcodeInstructions = new InstructionQueue[_amountShellcodes];
 	for (int i = 0; i < _amountShellcodes; i++)
 	{
 		_shellcodeInstructions[i] = buildTrace(0, _shellcodes[i], _shellcodeSizes[i]);
@@ -60,9 +60,9 @@ AnalyzerTrace::~AnalyzerTrace()
 	clear();
 }
 
-vector<InstructionInfo> AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, int buf_size)
+InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, int buf_size)
 {
-	vector<InstructionInfo> instructions;
+	InstructionQueue instructions;
 
 	Reader *r = new Reader(0u);
 	r->link(buf, buf_size);
@@ -226,7 +226,7 @@ istream & AnalyzerTrace::operator>>(istream &s)
 	int* sizes = new int [_amountShellcodes];
 	_shellcodesProcessed = new unsigned char * [_amountShellcodes];
 	_shellcodesProcessedSizes = new int [_amountShellcodes];
-	_shellcodeInstructions = new vector<InstructionInfo> [_amountShellcodes];
+	_shellcodeInstructions = new InstructionQueue[_amountShellcodes];
 	for (int i = 0; i < _amountShellcodes; i++)
 	{
 		s >> name;

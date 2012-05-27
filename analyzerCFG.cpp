@@ -43,7 +43,7 @@ void AnalyzerCFG::clear()
 
 void AnalyzerCFG::processShellcodes()
 {
-	_shellcodeInstructions = new vector <InstructionInfo> [_amountShellcodes];
+	_shellcodeInstructions = new InstructionQueue[_amountShellcodes];
 	for (int i = 0; i < _amountShellcodes; i++)
 	{
 		_cache.clear();
@@ -56,7 +56,7 @@ AnalyzerCFG::~AnalyzerCFG()
 	clear();
 }
 
-vector<InstructionInfo> AnalyzerCFG::buildCFG(int pos, const unsigned char* buf, int buf_size)
+InstructionQueue AnalyzerCFG::buildCFG(int pos, const unsigned char* buf, int buf_size)
 {
 	BlockInfo* root = new BlockInfo(&_cache, (UIntPtr) buf,
 			(UIntPtr) (buf + buf_size), (UIntPtr)(buf + pos), true);
@@ -84,7 +84,7 @@ vector<InstructionInfo> AnalyzerCFG::buildCFG(int pos, const unsigned char* buf,
 	
 	root->clearOppositeInstructions(&opposite);
 	
-	vector <InstructionInfo> instructions = root->getInstructions();
+	InstructionQueue instructions = root->getInstructions();
 	delete root;
 	return instructions;
 }
@@ -174,7 +174,7 @@ istream & AnalyzerCFG::operator>>(istream &s)
 	int* sizes = new int [_amountShellcodes];
 	_shellcodesProcessed = new unsigned char * [_amountShellcodes];
 	_shellcodesProcessedSizes = new int [_amountShellcodes];
-	_shellcodeInstructions = new vector<InstructionInfo> [_amountShellcodes];
+	_shellcodeInstructions = new InstructionQueue[_amountShellcodes];
 	for (int i = 0; i < _amountShellcodes; i++)
 	{
 		s >> name;

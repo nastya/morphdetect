@@ -53,9 +53,9 @@ BlockInfo::~BlockInfo()
 	}
 }
 
-vector<InstructionInfo> BlockInfo::getInstructions()
+InstructionQueue BlockInfo::getInstructions()
 {
-	vector<InstructionInfo> instructions;
+	InstructionQueue instructions;
 	set <BlockInfo*> queue;
 	set <BlockInfo*> extraQueue;
 	queue.insert(this);

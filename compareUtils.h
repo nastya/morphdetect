@@ -26,14 +26,10 @@ public:
 		float max_coef = 0;
 		int max_ans = 0, ind_max = 0;
 
-		unordered_map<uint64_t, uint32_t> stat_sample;
-		for (auto &x : sample)
-			stat_sample[x.hash]++;
-
 		for (int i = 0; i < models_count; i++)
 		{
 			int ans;
-			float coef = compare_diff(stat_sample, sample, models[i], threshold, &ans);
+			float coef = compare_diff(sample, models[i], threshold, &ans);
 			if (coef > max_coef)
 			{
 				max_coef = coef;
@@ -55,19 +51,15 @@ public:
 		return (max_coef > threshold) ? ind_max : -1;
 	}
 
-	template<class T> static inline bool possible_diff(unordered_map<uint64_t, uint32_t> &stat_sample, T &model, float required)
+	template<class M> static inline bool possible_diff(M &stat_sample, M &stat_model, float required)
 	{
 		int total;
 
 		total = 0;
-		for (auto &x : model)
-			total += stat_sample.count(x.hash);
+		for (auto &pair : stat_model)
+			total += pair.second * stat_sample.count(pair.first);
 		if (total < required)
 			return false;
-
-		unordered_map<uint64_t, uint32_t> stat_model;
-		for (auto &x : model)
-			stat_model[x.hash]++;
 
 		total = 0;
 		for (auto &pair : stat_model)
@@ -78,11 +70,11 @@ public:
 		return true;
 	}
 
-	template<class T> static float compare_diff(unordered_map<uint64_t, uint32_t> &stat_sample, T &sample, T &model, float threshold, int *ans_out = NULL)
+	template<class T> static inline float compare_diff(T &sample, T &model, float threshold, int *ans_out = NULL)
 	{
 		int ans = 0;
 
-		if (possible_diff(stat_sample, model, model.size() * threshold))
+		if (possible_diff(sample.stat(), model.stat(), model.size() * threshold))
 			ans = longest_common_subsequence(sample, model);
 
 		float coef = ans * 1.0 / model.size();

@@ -13,6 +13,7 @@ OBJECTS_LIB	= \
 		normalizer.o \
 		changedmemory.o \
 		instructionInfo.o \
+		instructionQueue.o \
 		compareUtils.o \
 		detectSimilar.o \
 		cache.o \
@@ -46,10 +47,10 @@ analyzerDiff.o: analyzerDiff.cpp analyzerDiff.h analyzer.h compareUtils.h
 analyzerNgram.o: analyzerNgram.cpp analyzerNgram.h analyzer.h compareUtils.h
 	$(CXX) $(FLAGS) -c analyzerNgram.cpp
 
-analyzerCFG.o: analyzerCFG.cpp analyzerCFG.h analyzer.h block.h instructionInfo.h compareUtils.h
+analyzerCFG.o: analyzerCFG.cpp analyzerCFG.h analyzer.h block.h instructionQueue.h compareUtils.h
 	$(CXX) $(FLAGS) -c analyzerCFG.cpp
 
-analyzerTrace.o: analyzerTrace.cpp analyzerTrace.h analyzer.h instructionInfo.h compareUtils.h
+analyzerTrace.o: analyzerTrace.cpp analyzerTrace.h analyzer.h instructionQueue.h compareUtils.h
 	$(CXX) $(FLAGS) -c analyzerTrace.cpp
 
 timer.o: timer.cpp timer.h
@@ -61,13 +62,16 @@ cache.o: cache.cpp cache.h
 compareUtils.o: compareUtils.cpp compareUtils.h
 	$(CXX) $(FLAGS) -c compareUtils.cpp
 
+instructionQueue.o: instructionQueue.cpp instructionQueue.h instructionInfo.h
+	$(CXX) $(FLAGS) -c instructionQueue.cpp
+
 instructionInfo.o: instructionInfo.cpp instructionInfo.h
 	$(CXX) $(FLAGS) -c instructionInfo.cpp
 
 detectSimilar.o: detectSimilar.cpp detectSimilar.h analyzer.h
 	$(CXX) $(FLAGS) -c detectSimilar.cpp
 
-block.o: block.cpp block.h normalizer.h
+block.o: block.cpp block.h normalizer.h instructionQueue.h
 	$(CXX) $(FLAGS) -c block.cpp
 
 normalizer.o: normalizer.cpp normalizer.h block.h

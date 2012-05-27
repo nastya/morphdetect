@@ -5,7 +5,7 @@
 #include <cstring>
 #include <stdint.h>
 #include <set>
-#include "instructionInfo.h"
+#include "instructionQueue.h"
 
 class AnalyzerTrace : public Analyzer
 {
@@ -20,10 +20,10 @@ public:
 private:
 	void clear();
 	string analyze_single(int pos);
-	vector<InstructionInfo> buildTrace(int pos, const unsigned char* buf, int buf_size);
+	InstructionQueue buildTrace(int pos, const unsigned char* buf, int buf_size);
 	void processShellcodes();
-	vector <InstructionInfo> _instructions;
-	vector <InstructionInfo> *_shellcodeInstructions;
+	InstructionQueue _instructions;
+	InstructionQueue *_shellcodeInstructions;
 	set <int> _eips_passe;
 	bool _brut;
 };
