@@ -72,7 +72,7 @@ int main(int argc, char** argv)
 	cerr << "Time spent on loading data to analyze: " << TimerAnalyzer::secs(TimeLoad) << endl;
 	cerr << "Time spend on building data: " << TimerAnalyzer::secs(TimeBuild) << endl;
 	cerr << "Time spend on disassembling: " << TimerAnalyzer::secs(TimeDisassemble) << endl;
-	cerr << "Time spend on diff: " << TimerAnalyzer::secs(TimeDiff) << endl;
+	cerr << "Time spend on matching: " << TimerAnalyzer::secs(TimeMatch) << endl;
 	cerr << "Time spend on lcs: " << TimerAnalyzer::secs(TimeLCS) << endl;
 	return 0;
 }

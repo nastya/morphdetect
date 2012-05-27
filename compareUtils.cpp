@@ -31,7 +31,7 @@ size_t CompareUtils::compare_simple(unordered_map<mblock, size_t> &sample_stat, 
 
 size_t CompareUtils::best_match_simple(const mbyte *sample, size_t sample_size, const mbyte **models, const int *model_sizes, int models_count, float threshold, float *coef_out, float *ans_out)
 {
-	TimerAnalyzer::start(TimeDiff);
+	TimerAnalyzer::start(TimeMatch);
 	float max_coef = 0;
 	int max_ans = 0, ind_max = 0;
 
@@ -61,7 +61,7 @@ size_t CompareUtils::best_match_simple(const mbyte *sample, size_t sample_size, 
 	if (coef_out != NULL)
 		*coef_out = max_coef;
 
-	TimerAnalyzer::stop(TimeDiff);
+	TimerAnalyzer::stop(TimeMatch);
 	return (max_coef > threshold) ? ind_max : -1;
 }
 
@@ -108,7 +108,7 @@ bool CompareUtils::possible_diff(const mbyte *sample, size_t sample_size, const 
 
 size_t CompareUtils::best_match(const mbyte *sample, size_t sample_size, const mbyte **models, const int *model_sizes, int models_count, float threshold, float *coef_out, float *ans_out)
 {
-	TimerAnalyzer::start(TimeDiff);
+	TimerAnalyzer::start(TimeMatch);
 	float max_coef = 0;
 	int max_ans = 0, ind_max = 0;
 
@@ -133,7 +133,7 @@ size_t CompareUtils::best_match(const mbyte *sample, size_t sample_size, const m
 	if (coef_out != NULL)
 		*coef_out = max_coef;
 
-	TimerAnalyzer::stop(TimeDiff);
+	TimerAnalyzer::stop(TimeMatch);
 	return (max_coef > threshold) ? ind_max : -1;
 }
 

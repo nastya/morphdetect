@@ -9,7 +9,7 @@ enum TimeAnalyzerIds {
 	TimeLoadShellcodes,
 	TimeDisassemble,
 	TimeBuild,
-	TimeDiff,
+	TimeMatch,
 	TimeLCS,
 	TimeLoad,
 	TimeNone

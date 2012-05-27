@@ -22,7 +22,7 @@ void InstructionQueue::statFill()
 
 int InstructionQueue::bestMatch(InstructionQueue *models, int models_count, float threshold, float *coef_out, float *ans_out)
 {
-	TimerAnalyzer::start(TimeDiff);
+	TimerAnalyzer::start(TimeMatch);
 
 	float max_coef = 0;
 	int max_ans = 0, ind_max = 0;
@@ -48,7 +48,7 @@ int InstructionQueue::bestMatch(InstructionQueue *models, int models_count, floa
 	if (coef_out != NULL)
 		*coef_out = max_coef;
 
-	TimerAnalyzer::stop(TimeDiff);
+	TimerAnalyzer::stop(TimeMatch);
 	return (max_coef > threshold) ? ind_max : -1;
 }
 
