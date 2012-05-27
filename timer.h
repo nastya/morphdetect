@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <sys/time.h>
 
+//#define TIMER_DETAILED
+
 enum TimeAnalyzerIds {
 	TimeTotal,
 	TimeLoadShellcodes,
@@ -24,11 +26,17 @@ class TimerAnalyzer {
 public:
 	static inline void start(TimeAnalyzerIds id = TimeTotal)
 	{
+#ifndef TIMER_DETAILED
+		if (id != TimeTotal) return;
+#endif
 		if (!enabled) return;
 		data[id] -= microtime();
 	}
 	static inline void stop(TimeAnalyzerIds id = TimeTotal)
 	{
+#ifndef TIMER_DETAILED
+		if (id != TimeTotal) return;
+#endif
 		if (!enabled) return;
 		data[id] += microtime();
 	}
