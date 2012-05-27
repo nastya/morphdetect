@@ -161,12 +161,11 @@ string AnalyzerTrace::analyze()
 	{
 		for (int pos = 0; pos < _data_size - MIN_SHELLCODE_SIZE; pos++)
 		{
-			if (!_eips_passe.count(pos))
-			{
-				ans = analyze_single(pos);
-				if (!ans.empty())
-					break;
-			}
+			if (_eips_passe.count(pos))
+				continue;
+			ans = analyze_single(pos);
+			if (!ans.empty())
+				break;
 		}
 	}
 	else
