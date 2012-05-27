@@ -15,17 +15,17 @@ public:
 	static size_t compare_simple(const mbyte* d1, size_t d1_size, const mbyte* d2, size_t d2_size);
 	static size_t compare_diff(const mbyte *signature, size_t signature_size, const mbyte *data, size_t data_size);
 
-	template<class T1, class T2> static size_t longest_common_subsequence(T1 *s1, T2 *s2)
+	template<class T1, class T2> static inline size_t longest_common_subsequence(T1 &s1, T2 &s2)
 	{
-		return longest_common_subsequence_ref(s1, s1->size(), s2, s2->size());
+		return longest_common_subsequence_ref(s1, s1.size(), s2, s2.size());
 	}
 
-	template<class T1, class T2> static size_t longest_common_subsequence(T1 s1, size_t len1, T2 s2, size_t len2)
+	template<class T1, class T2> static inline size_t longest_common_subsequence(T1 s1, size_t len1, T2 s2, size_t len2)
 	{
-		return longest_common_subsequence_ref(&s1, len1, &s2, len2);
+		return longest_common_subsequence_ref(s1, len1, s2, len2);
 	}
 
-	template<class T1, class T2> static size_t longest_common_subsequence_ref(T1 *s1, size_t len1, T2 *s2, size_t len2)
+	template<class T1, class T2> static size_t longest_common_subsequence_ref(T1 &s1, size_t len1, T2 &s2, size_t len2)
 	{
 		if ((len1 == 0) || (len2 == 0)) {
 			cerr << "WHOOPS! " << len1 << " " << len2 << endl;
@@ -48,7 +48,7 @@ public:
 		{
 			for (size_t j = 1; j < len2; j++)
 			{
-				if ((*s1)[i] == (*s2)[j])
+				if (s1[i] == s2[j])
 					f[i][j] = f[i - 1][j - 1] + 1;
 				else
 					f[i][j] = max(f[i][j - 1], f[i - 1][j]);

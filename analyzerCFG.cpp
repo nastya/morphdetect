@@ -101,7 +101,7 @@ string AnalyzerCFG::analyze_single(int pos)
 	int ind_max = 0;
 	for (int i = 0; i < _amountShellcodes; i++)
 	{
-		int ans = CompareUtils::longest_common_subsequence(&_instructions, &_shellcodeInstructions[i]);
+		int ans = CompareUtils::longest_common_subsequence(_instructions, _shellcodeInstructions[i]);
 		//cout<<_shellcodeNames[i]<<": len = "<< _shellcodeInstructions[i].size();
 		//cout<<", ans = "<<ans;
 		
