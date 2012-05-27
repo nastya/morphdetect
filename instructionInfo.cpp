@@ -2,7 +2,7 @@
 #include "wrappers.h"
 #include <cstring>
 
-#define INSTRUCTION_FUZZY
+//#define INSTRUCTION_FUZZY
 
 InstructionInfo::InstructionInfo(DISASM *disasm, int l) : len(l)
 {
