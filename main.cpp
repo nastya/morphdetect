@@ -51,18 +51,23 @@ int main(int argc, char** argv)
 	string ans = ds.analyze();
 	*/
 	string ans;
-	for (int data_start = 0, i = 0; data_start < reader.size(); data_start += bl_size - overlap, i++)
+	uint processed = 0;
+	TimerAnalyzer::start(TimeProcess);
+	for (uint data_start = 0, i = 0; data_start < reader.size(); data_start += bl_size - overlap, i++)
 	{
 		if (i > 0)
 			cerr << 100 * (float) data_start / reader.size() << "% processed" << endl;
 
 		ds.link(reader.pointer() + data_start, min(reader.size() - data_start, bl_size));
 		string my_ans = ds.analyze();
+		processed += bl_size;
 		if (!my_ans.empty()) {
 			ans = my_ans;
 			break;
 		}
 	}
+	TimerAnalyzer::stop(TimeProcess);
+	processed = max(processed, (uint) reader.size());
 
 	if (!ans.empty())
 	{
@@ -75,6 +80,9 @@ int main(int argc, char** argv)
 
 	TimerAnalyzer::stop(TimeTotal);
 	cerr << "Total time: " << TimerAnalyzer::secs(TimeTotal) << endl;
+	cerr << "Processing time: " << TimerAnalyzer::secs(TimeProcess) << endl;
+	float speed = processed * 8 / 1024.0 / TimerAnalyzer::secs(TimeProcess);
+	cerr << "Speed: " << speed << " kbit/s = " << speed / 8 << " KiB/sec" << endl;
 #ifdef TIMER_DETAILED
 	cerr << "Time spent on loading shellcodes: " << TimerAnalyzer::secs(TimeLoadShellcodes) << endl;
 	cerr << "Time spent on loading data to analyze: " << TimerAnalyzer::secs(TimeLoad) << endl;

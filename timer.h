@@ -8,6 +8,7 @@
 
 enum TimeAnalyzerIds {
 	TimeTotal,
+	TimeProcess,
 	TimeLoadShellcodes,
 	TimeDisassemble,
 	TimeBuild,
@@ -27,7 +28,7 @@ public:
 	static inline void start(TimeAnalyzerIds id = TimeTotal)
 	{
 #ifndef TIMER_DETAILED
-		if (id != TimeTotal) return;
+		if (id != TimeTotal && id != TimeProcess) return;
 #endif
 		if (!enabled) return;
 		data[id] -= microtime();
@@ -35,7 +36,7 @@ public:
 	static inline void stop(TimeAnalyzerIds id = TimeTotal)
 	{
 #ifndef TIMER_DETAILED
-		if (id != TimeTotal) return;
+		if (id != TimeTotal && id != TimeProcess) return;
 #endif
 		if (!enabled) return;
 		data[id] += microtime();
