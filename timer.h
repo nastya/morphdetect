@@ -8,7 +8,9 @@ enum TimeAnalyzerIds {
 	TimeTotal,
 	TimeLoadShellcodes,
 	TimeDisassemble,
+	TimeBuild,
 	TimeDiff,
+	TimeLCS,
 	TimeLoad,
 	TimeNone
 };

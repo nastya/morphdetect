@@ -2,6 +2,7 @@
 #include "block.h"
 #include "compareUtils.h"
 #include "wrappers.h"
+#include "timer.h"
 #include <map>
 #include <iostream>
 #include <cstring>
@@ -72,7 +73,6 @@ vector<InstructionInfo> AnalyzerCFG::buildCFG(int pos, const unsigned char* buf,
 	root->mergeBlocks();	
 	root->normalize();
 //	root->generateDot(string("cfg_merged.dot"));
-	
 	map<string, string> opposite;
 	opposite["add "] = "sub ";
 	opposite["sub "] = "add ";
@@ -92,34 +92,16 @@ vector<InstructionInfo> AnalyzerCFG::buildCFG(int pos, const unsigned char* buf,
 string AnalyzerCFG::analyze_single(int pos)
 {
 	//cerr << "analyze_single launched! POS: " << pos << endl;
+	TimerAnalyzer::start(TimeBuild);
 	_instructions = buildCFG(pos, _data, _data_size);
-	if (_instructions.size() == 0) {
+	TimerAnalyzer::stop(TimeBuild);
+	if (_instructions.size() == 0)
 		return string();
-	}
-	double max_coef = 0.0;
-	int max_ans = 0;
-	int ind_max = 0;
-	for (int i = 0; i < _amountShellcodes; i++)
-	{
-		int ans = CompareUtils::longest_common_subsequence(_instructions, _shellcodeInstructions[i]);
-		//cout<<_shellcodeNames[i]<<": len = "<< _shellcodeInstructions[i].size();
-		//cout<<", ans = "<<ans;
-		
-		double coef = ans * 1.0 / _shellcodeInstructions[i].size();
-		//cout<<", coef = "<<coef<<endl;
-		if (coef > THRESHOLD)
-		{
-			max_coef = coef;
-			if (ans > max_ans)
-			{
-				max_ans = ans;
-				ind_max = i;
-			}
-		}
-	}
-	if (max_coef > THRESHOLD)
+	int ind_max = CompareUtils::best_match(_instructions, _shellcodeInstructions, _amountShellcodes, THRESHOLD);
+	if (ind_max >= 0)
 		return _shellcodeNames[ind_max];
 	return string();
+
 }
 
 string AnalyzerCFG::analyze()

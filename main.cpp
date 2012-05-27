@@ -70,7 +70,9 @@ int main(int argc, char** argv)
 	cerr << "Total time: " << TimerAnalyzer::secs(TimeTotal) << endl;
 	cerr << "Time spent on loading shellcodes: " << TimerAnalyzer::secs(TimeLoadShellcodes) << endl;
 	cerr << "Time spent on loading data to analyze: " << TimerAnalyzer::secs(TimeLoad) << endl;
+	cerr << "Time spend on building data: " << TimerAnalyzer::secs(TimeBuild) << endl;
 	cerr << "Time spend on disassembling: " << TimerAnalyzer::secs(TimeDisassemble) << endl;
 	cerr << "Time spend on diff: " << TimerAnalyzer::secs(TimeDiff) << endl;
+	cerr << "Time spend on lcs: " << TimerAnalyzer::secs(TimeLCS) << endl;
 	return 0;
 }

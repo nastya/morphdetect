@@ -4,6 +4,7 @@
 #include "timer.h"
 #include <iostream>
 #include <algorithm>
+#include <unordered_map>
 using namespace std;
 
 typedef uint8_t mbyte;
@@ -14,6 +15,80 @@ public:
 	static size_t cleanup(mbyte *dst, const mbyte *src, size_t src_len);
 	static size_t compare_simple(const mbyte* d1, size_t d1_size, const mbyte* d2, size_t d2_size);
 	static size_t compare_diff(const mbyte *signature, size_t signature_size, const mbyte *data, size_t data_size);
+
+	template<class T> static int best_match(T &sample, T* models, int models_count, float threshold, float *coef_out = NULL, float *ans_out = NULL)
+	{
+		TimerAnalyzer::start(TimeDiff);
+
+		float max_coef = 0;
+		int max_ans = 0, ind_max = 0;
+
+		unordered_map<uint64_t, uint32_t> stat_sample;
+		for (auto &x : sample)
+			stat_sample[x.hash]++;
+
+		for (int i = 0; i < models_count; i++)
+		{
+			int ans;
+			float coef = compare_diff(stat_sample, sample, models[i], threshold, &ans);
+			if (coef > max_coef)
+			{
+				max_coef = coef;
+			}
+			if (ans > max_ans)
+			{
+				max_ans = ans;
+				ind_max = i;
+			}
+		}
+
+		if (ans_out != NULL)
+			*ans_out = max_ans;
+
+		if (coef_out != NULL)
+			*coef_out = max_coef;
+
+		TimerAnalyzer::stop(TimeDiff);
+		return (max_coef > threshold) ? ind_max : -1;
+	}
+
+	template<class T> static inline bool possible_diff(unordered_map<uint64_t, uint32_t> &stat_sample, T &model, float required)
+	{
+		int total;
+
+		total = 0;
+		for (auto &x : model)
+			total += stat_sample.count(x.hash);
+		if (total < required)
+			return false;
+
+		unordered_map<uint64_t, uint32_t> stat_model;
+		for (auto &x : model)
+			stat_model[x.hash]++;
+
+		total = 0;
+		for (auto &pair : stat_model)
+			total += min(pair.second, stat_sample[pair.first]);
+		if (total < required)
+			return false;
+
+		return true;
+	}
+
+	template<class T> static float compare_diff(unordered_map<uint64_t, uint32_t> &stat_sample, T &sample, T &model, float threshold, int *ans_out = NULL)
+	{
+		int ans = 0;
+
+		if (possible_diff(stat_sample, model, model.size() * threshold))
+			ans = longest_common_subsequence(sample, model);
+
+		float coef = ans * 1.0 / model.size();
+
+		if (ans_out != NULL)
+			*ans_out = ans;
+
+		return coef;
+	}
 
 	template<class T1, class T2> static inline size_t longest_common_subsequence(T1 &s1, T2 &s2)
 	{
@@ -32,7 +107,7 @@ public:
 			return 0;
 		}
 
-		TimerAnalyzer::start(TimeDiff);
+		TimerAnalyzer::start(TimeLCS);
 
 		size_t f[len1][len2];
 		for (size_t i = 0; i < len1; i++)
@@ -55,7 +130,7 @@ public:
 			}
 		}
 
-		TimerAnalyzer::stop(TimeDiff);
+		TimerAnalyzer::stop(TimeLCS);
 		return f[len1 - 1][len2 - 1];
 	}
 };

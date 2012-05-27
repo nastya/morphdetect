@@ -1,6 +1,7 @@
 #include "analyzerTrace.h"
 #include "compareUtils.h"
 #include "wrappers.h"
+#include "timer.h"
 #include <finddecryptor/emulator.h>
 #include <finddecryptor/emulator_libemu.h>
 //#include <finddecryptor/emulator_qemu.h>
@@ -145,31 +146,13 @@ vector<InstructionInfo> AnalyzerTrace::buildTrace(int pos, const unsigned char* 
 
 string AnalyzerTrace::analyze_single(int pos)
 {
+	TimerAnalyzer::start(TimeBuild);
 	_instructions = buildTrace(pos, _data, _data_size);
+	TimerAnalyzer::stop(TimeBuild);
 	if (_instructions.size() == 0)
 		return string();
-	double max_coef = 0.0;
-	int max_ans = 0;
-	int ind_max = 0;
-	for (int i = 0; i < _amountShellcodes; i++)
-	{
-		int ans = CompareUtils::longest_common_subsequence(_instructions, _shellcodeInstructions[i]);
-		//cout<<_shellcodeNames[i]<<": len = "<< _shellcodeInstructions[i].size();
-		//cout<<", ans = "<<ans;
-		
-		double coef = ans * 1.0 / _shellcodeInstructions[i].size();
-		//cout<<", coef = "<<coef<<endl;
-		if (coef > THRESHOLD)
-		{
-			max_coef = coef;
-			if (ans > max_ans)
-			{
-				max_ans = ans;
-				ind_max = i;
-			}
-		}
-	}
-	if (max_coef > THRESHOLD)
+	int ind_max = CompareUtils::best_match(_instructions, _shellcodeInstructions, _amountShellcodes, THRESHOLD);
+	if (ind_max >= 0)
 		return _shellcodeNames[ind_max];
 	return string();
 }
