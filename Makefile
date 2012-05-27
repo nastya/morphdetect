@@ -62,7 +62,7 @@ cache.o: cache.cpp cache.h
 compareUtils.o: compareUtils.cpp compareUtils.h
 	$(CXX) $(FLAGS) -c compareUtils.cpp
 
-instructionQueue.o: instructionQueue.cpp instructionQueue.h instructionInfo.h
+instructionQueue.o: instructionQueue.cpp instructionQueue.h instructionInfo.h compareUtils.h
 	$(CXX) $(FLAGS) -c instructionQueue.cpp
 
 instructionInfo.o: instructionInfo.cpp instructionInfo.h

@@ -151,7 +151,7 @@ string AnalyzerTrace::analyze_single(int pos)
 	TimerAnalyzer::stop(TimeBuild);
 	if (_instructions.size() == 0)
 		return string();
-	int ind_max = CompareUtils::best_match(_instructions, _shellcodeInstructions, _amountShellcodes, THRESHOLD);
+	int ind_max = _instructions.bestMatch(_shellcodeInstructions, _amountShellcodes, THRESHOLD);
 	if (ind_max >= 0)
 		return _shellcodeNames[ind_max];
 	return string();
