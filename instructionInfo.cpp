@@ -2,6 +2,8 @@
 #include "wrappers.h"
 #include <cstring>
 
+#define INSTRUCTION_FUZZY
+
 InstructionInfo::InstructionInfo(DISASM *disasm, int l) : len(l)
 {
 	memcpy(&(this->disasm), disasm, sizeof(DISASM));
@@ -17,8 +19,21 @@ bool InstructionInfo::operator==(InstructionInfo& a)
 		cerr << "Hashes: " << hex << hash << "; " << a.hash << dec << endl;
 	}
 	*/
+	/*
+	if ((hash == a.hash) && (strcmp(disasm.CompleteInstr, a.disasm.CompleteInstr) != 0)) {
+		cerr << "HASH COLLISION" << endl;
+		cerr << "Checking instr: " << disasm.CompleteInstr << "; " << a.disasm.CompleteInstr << endl;
+		cerr << "Hashes: " << hex << hash << "; " << a.hash << dec << endl;
+	}
+	*/
+
 	return	(hash == a.hash) &&
 		(disasm.Instruction.Immediat == a.disasm.Instruction.Immediat) &&
+#ifndef INSTRUCTION_FUZZY
+		(disasm.Argument1.ArgType == a.disasm.Argument1.ArgType) &&
+		(disasm.Argument2.ArgType == a.disasm.Argument2.ArgType) &&
+		(disasm.Argument3.ArgType == a.disasm.Argument3.ArgType) &&
+#endif
 		checkArgs(disasm.Argument1, a.disasm.Argument1) &&
 		checkArgs(disasm.Argument2, a.disasm.Argument2) &&
 		checkArgs(disasm.Argument3, a.disasm.Argument3);
@@ -30,7 +45,7 @@ bool InstructionInfo::checkArgs(const ARGTYPE &arg1, const ARGTYPE &arg2) const
 	if (arg1.ArgType & (NO_ARGUMENT | REGISTER_TYPE | CONSTANT_TYPE))
 		return true;
 
-	// Memory.Scale was already checked, check Displacement only.
+	// Memory.Scale was already checked inside hash, check Displacement only.
 	if (arg1.ArgType & MEMORY_TYPE)
 		return arg1.Memory.Displacement == arg2.Memory.Displacement;
 
@@ -64,7 +79,7 @@ void InstructionInfo::build_hash()
 		uint64_t c = mnemonic[i] - 'a' + 1; // 1-26
 		if ((c < 1) || (c > 26)) c = 27; // 1-27, 5 bit per letter
 		/*
-		* First 5 letters are stored completely unique (bits 0-25)
+		* First 5 letters are stored completely unique (bits 1-25)
 		* 6-th letter can be corrupted by the last letters (bits 26-30)
 		* >=7-th letters are xored in the last 5 bits (bits 28-32), and can corrupt the 6-th letter
 		*/
