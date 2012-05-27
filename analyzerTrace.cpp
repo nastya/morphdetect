@@ -8,7 +8,7 @@
 #include <finddecryptor/data.h>
 #include <iostream>
 #include <cstring>
-#include <map>
+#include <unordered_map>
 #define MIN_SHELLCODE_SIZE 30
 #define THRESHOLD 0.5 
 #define MAX_EMULATE 5000
@@ -69,25 +69,21 @@ InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, in
 	
 	Emulator_LibEmu* emulator;
 	emulator = new Emulator_LibEmu;
-	emulator -> bind(r);
-	emulator -> begin(pos);
+	emulator->bind(r);
+	emulator->begin(pos);
 	char buff[10];
 	DISASM myDisasm;
 	(void) memset (&(myDisasm), 0, sizeof(DISASM));
 	myDisasm.EIP = (UIntPtr) buff;
 
-	map <int, int> eip_passe;
-	int addr_value = 0, br_type;
+	unordered_map<int, int> eip_passe;
 	
 	for(int i = 0; i < MAX_EMULATE ; i++)
 	{
-		int num = emulator->get_register(Data::EIP);
-		_eips_passe.insert(num);
-		if (eip_passe.count(num) != 0)
-			eip_passe[num]++;
-		else
-			eip_passe[num] = 1;
-		if (!r->is_valid(num)) {
+		int eip = emulator->get_register(Data::EIP);
+		_eips_passe.insert(eip);
+		eip_passe[eip]++;
+		if (!r->is_valid(eip)) {
 			break;
 		}
 		if (!emulator->get_command(buff))
@@ -97,43 +93,45 @@ InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, in
 		}
 		int len = DisasmWrapper(&myDisasm);
 		/*
-		cerr << i << ": " << "EIP: 0x" << hex << num << " " << myDisasm.CompleteInstr << ", len = " << len <<
-				", opcode " << myDisasm.Instruction.Opcode<< endl;
+		cerr << i << ": " << "EIP: 0x" << hex << eip << " " << myDisasm.CompleteInstr << ", len = " << len <<
+				", opcode " << myDisasm.Instruction.Opcode << endl;
 		*/
 		if (len == UNKNOWN_OPCODE)
 		{
 			//cerr << "Unknown opcode encountered" << endl;
 			break;
 		}
-		br_type = myDisasm.Instruction.BranchType;
-		if (br_type)
-			addr_value = myDisasm.Instruction.AddrValue - myDisasm.EIP;
+		int br_type = myDisasm.Instruction.BranchType;
 
 		if (	!br_type &&
 			myDisasm.Instruction.Opcode != 0x00 && // 0x00 = probably junk
 			myDisasm.Instruction.Opcode != 0x90) // 0x90 = NOP
 			instructions.push_back(InstructionInfo(&myDisasm, len));
 
-		int prev_eip = num;
-		if (!emulator -> step())
+		int prev_eip = eip;
+		if (!emulator->step())
 		{
 			//cerr << "Execution error, skipping instruction" << endl;
 			emulator->jump(prev_eip + len);
 			continue;
 		}
-		num = emulator->get_register(Data::EIP);
-		if (eip_passe.count(num) && eip_passe[num] >= 10 && br_type && br_type != JmpType &&
-			br_type != CallType && br_type != RetType)
+		eip = emulator->get_register(Data::EIP);
+		if (eip_passe.count(eip) && eip_passe[eip] >= 10 && br_type &&
+			br_type != JmpType && br_type != CallType && br_type != RetType)
 		{
-			if (num != prev_eip + len)
+			if (eip != prev_eip + len)
 			{
-				//cerr << "Changing flow from " << num << " to " << prev_eip + len << endl;
+				//cerr << "Changing flow from " << eip << " to " << prev_eip + len << endl;
 				emulator->jump(prev_eip + len);
 			}
-			else if (addr_value != 0)
+			else
 			{
-				//cerr << "Changing flow from " << num << " to " << prev_eip + len + addr_value << endl;
-				emulator->jump(prev_eip + len + addr_value);
+				int addr_value = myDisasm.Instruction.AddrValue - myDisasm.EIP;
+				if (addr_value != 0)
+				{
+					//cerr << "Changing flow from " << eip << " to " << prev_eip + len + addr_value << endl;
+					emulator->jump(prev_eip + len + addr_value);
+				}
 			}
 		}
 	}
