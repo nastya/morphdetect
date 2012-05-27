@@ -167,13 +167,13 @@ void BlockInfo::generateDot(ostream& out, set<BlockInfo *> *done)
 	}
 }
 
-void BlockInfo::getEIPSPasse(set <int>* s)
+void BlockInfo::getEIPSPasse(unordered_set<int>* s)
 {
 	set <BlockInfo*> done;
 	_getEIPSPasse(s, &done);
 }
 
-void BlockInfo::_getEIPSPasse(set <int>* s, set <BlockInfo*> *done)
+void BlockInfo::_getEIPSPasse(unordered_set<int>* s, set <BlockInfo*> *done)
 {
 	for (vector <SubBlock>::iterator it = _subBlocks.begin(); it != _subBlocks.end(); ++it)
 	{

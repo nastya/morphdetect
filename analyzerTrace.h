@@ -4,7 +4,7 @@
 #include <beaengine/BeaEngine.h>
 #include <cstring>
 #include <stdint.h>
-#include <set>
+#include <unordered_set>
 #include "instructionQueue.h"
 
 class AnalyzerTrace : public Analyzer
@@ -24,7 +24,7 @@ private:
 	void processShellcodes();
 	InstructionQueue _instructions;
 	InstructionQueue *_shellcodeInstructions;
-	set <int> _eips_passe;
+	unordered_set<int> _eips_passe;
 	bool _brut;
 };
 

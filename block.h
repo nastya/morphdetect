@@ -1,6 +1,7 @@
 #ifndef __BLOCK_H
 #define __BLOCK_H
 #include <set>
+#include <unordered_set>
 #include <vector>
 #include <string>
 #include <fstream>
@@ -31,7 +32,7 @@ public:
 	bool isMarked(UIntPtr);
 	void copyMark(BlockInfo*);
 	InstructionQueue getInstructions();
-	void getEIPSPasse(set <int>* s);
+	void getEIPSPasse(unordered_set<int>* s);
 private:
 	struct SubBlock 
 	{
@@ -60,7 +61,7 @@ private:
 	
 	void generateDot(ostream& out, set<BlockInfo *> *done);
 	
-	void _getEIPSPasse(set <int>* s, set <BlockInfo*>* done);
+	void _getEIPSPasse(unordered_set<int>* s, set <BlockInfo*>* done);
 
 	UIntPtr _data_start, _data_end;
 	set <BlockInfo*> _to;
