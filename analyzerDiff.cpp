@@ -19,24 +19,8 @@ AnalyzerDiff::AnalyzerDiff(const unsigned char* data, uint size)
 
 string AnalyzerDiff::analyze()
 {
-	double max_coef = 0.0;
-	int max_ans = 0;
-	int ind_max = 0;
-	for (int i = 0; i < _amountShellcodes; i++)
-	{
-		int ans = CompareUtils::compare_diff(_shellcodes[i], _shellcodeSizes[i], _data, _data_size);
-		double coef = ans * 1.0 / _shellcodeSizes[i];
-		if (coef > THRESHOLD)
-		{
-			max_coef = coef;
-			if (ans > max_ans)
-			{
-				max_ans = ans;
-				ind_max = i;
-			}
-		}
-	}
-	if (max_coef > THRESHOLD)
+	int ind_max = CompareUtils::best_match(_data, _data_size, (const unsigned char**) _shellcodes, _shellcodeSizes, _amountShellcodes, THRESHOLD);
+	if (ind_max >= 0)
 		return _shellcodeNames[ind_max];
 	return string();
 }

@@ -13,8 +13,11 @@ typedef uint32_t mblock;
 class CompareUtils {
 public:
 	static size_t cleanup(mbyte *dst, const mbyte *src, size_t src_len);
-	static size_t compare_simple(const mbyte* d1, size_t d1_size, const mbyte* d2, size_t d2_size);
-	static size_t compare_diff(const mbyte *signature, size_t signature_size, const mbyte *data, size_t data_size);
+	static size_t compare_simple(unordered_map<mblock, size_t> &sample_stat, const mbyte* model, size_t model_size);
+	static size_t best_match_simple(const mbyte *sample, size_t sample_size, const mbyte **models, const int *model_sizes, int models_count, float threshold, float *coef_out = NULL, float *ans_out = NULL);
+	static size_t compare_diff(const mbyte *sample, size_t sample_size, const mbyte *model, size_t model_size, float threshold);
+	static bool possible_diff(const mbyte *sample, size_t sample_size, const mbyte *model, size_t model_size, float threshold);
+	static size_t best_match(const mbyte *sample, size_t sample_size, const mbyte **models, const int *model_sizes, int models_count, float threshold, float *coef_out = NULL, float *ans_out = NULL);
 
 	template<class T> static int best_match(T &sample, T* models, int models_count, float threshold, float *coef_out = NULL, float *ans_out = NULL)
 	{

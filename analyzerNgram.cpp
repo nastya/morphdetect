@@ -2,6 +2,8 @@
 #include "compareUtils.h"
 #include <iostream>
 
+#define THRESHOLD 0.5
+
 AnalyzerNgram::AnalyzerNgram()
 {
 	_className = "AnalyzerNgram";
@@ -15,19 +17,8 @@ AnalyzerNgram::AnalyzerNgram(const unsigned char* data, uint size)
 
 string AnalyzerNgram::analyze()
 {
-	double max_coef = 0.0;
-	int ind_max = 0;
-	for (int i = 0; i < _amountShellcodes; i++)
-	{
-		int ans = CompareUtils::compare_simple(_data, _data_size, _shellcodes[i], _shellcodeSizes[i]);
-		double coef = ans * 1.0 / _shellcodeSizes[i];
-		if (coef > max_coef)
-		{
-			max_coef = coef;
-			ind_max = i;
-		}
-	}
-	if (max_coef > 0.5)
+	int ind_max = CompareUtils::best_match_simple(_data, _data_size, (const unsigned char**) _shellcodes, _shellcodeSizes, _amountShellcodes, THRESHOLD);
+	if (ind_max >= 0)
 		return _shellcodeNames[ind_max];
 	return string();
 }
