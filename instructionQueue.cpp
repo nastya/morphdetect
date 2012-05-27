@@ -29,8 +29,11 @@ int InstructionQueue::bestMatch(InstructionQueue *models, int models_count, floa
 
 	for (int i = 0; i < models_count; i++)
 	{
-		int ans;
-		float coef = diff(models[i], threshold, &ans);
+		if (!diffPossible(models[i], threshold))
+			continue;
+
+		int ans = CompareUtils::longest_common_subsequence(*this, models[i]);
+		float coef = ans * 1.0 / models[i].size();
 		if (coef > max_coef)
 		{
 			max_coef = coef;
@@ -51,22 +54,6 @@ int InstructionQueue::bestMatch(InstructionQueue *models, int models_count, floa
 	TimerAnalyzer::stop(TimeMatch);
 	return (max_coef > threshold) ? ind_max : -1;
 }
-
-float InstructionQueue::diff(InstructionQueue &model, float threshold, int *ans_out)
-{
-	int ans = 0;
-
-	if (diffPossible(model, threshold))
-		ans = CompareUtils::longest_common_subsequence(*this, model);
-
-	float coef = ans * 1.0 / model.size();
-
-	if (ans_out != NULL)
-		*ans_out = ans;
-
-	return coef;
-}
-
 
 bool InstructionQueue::diffPossible(InstructionQueue &model, float required)
 {

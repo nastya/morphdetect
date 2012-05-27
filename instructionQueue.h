@@ -12,7 +12,6 @@ class InstructionQueue : public vector<InstructionInfo>
 public:
 	InstructionQueue();
 	int bestMatch(InstructionQueue *models, int models_count, float threshold, float *coef_out = NULL, float *ans_out = NULL);
-	inline float diff(InstructionQueue &model, float threshold, int *ans_out = NULL);
 
 private:
 	inline bool diffPossible(InstructionQueue &model, float threshold);
