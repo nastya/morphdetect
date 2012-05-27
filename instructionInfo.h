@@ -11,8 +11,11 @@ public:
 
 	int len;
 	DISASM disasm;
+	uint64_t hash;
 private:
-	bool checkArgs(ARGTYPE arg1, ARGTYPE arg2);
+	inline bool checkArgs(const ARGTYPE &arg1, const ARGTYPE &arg2) const;
+	void build_hash();
+	uint64_t arg_hash(const ARGTYPE &arg) const;
 };
 
 #endif //__INSTRUCTION_INFO_H
