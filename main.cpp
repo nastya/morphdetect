@@ -54,7 +54,7 @@ int main(int argc, char** argv)
 	for (int data_start = 0, i = 0; data_start < reader.size(); data_start += bl_size - overlap, i++)
 	{
 		if (i > 0)
-			cout << 100 * (float) data_start / reader.size() << "% processed" << endl;
+			cerr << 100 * (float) data_start / reader.size() << "% processed" << endl;
 
 		ds.link(reader.pointer() + data_start, min(reader.size() - data_start, bl_size));
 		string my_ans = ds.analyze();
