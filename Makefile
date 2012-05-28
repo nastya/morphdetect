@@ -16,6 +16,7 @@ OBJECTS_LIB	= \
 		instructionQueue.o \
 		compareUtils.o \
 		detectSimilar.o \
+		timer.o \
 		cache.o \
 
 OBJECTS		= main.o $(OBJECTS_LIB)
@@ -88,7 +89,7 @@ build/lib/libdetectsimilar.so: $(OBJECTS_LIB)
 	$(CXX) $(FLAGS) -shared -o $@ $(OBJECTS_LIB) -lBeaEngine -lemu -lfinddecryptor \
 		$(FLAGS_LIB)
 
-$(TARGET): main.o timer.o lib
+$(TARGET): main.o lib
 	$(CXX) $(FLAGS) -o $@ main.o timer.o -lfinddecryptor -ldetectsimilar \
 		-L$(CURDIR)/build/lib -Wl,-rpath -Wl,$(CURDIR)/build/lib \
 		 $(FLAGS_LIB)
