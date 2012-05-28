@@ -105,3 +105,10 @@ debian: all
 
 deb: debian distrib/morphdetect.equivs
 	equivs-build distrib/morphdetect.equivs
+
+# See http://nosemaj.org/debian-gcc-4-7 for Debian Squeeze
+debian-47: CXX = LD_LIBRARY_PATH=~/gcc-4.7/output/lib/ ~/gcc-4.7/output/bin/g++-4.7 -g -Wall -fPIC -O2 -I.
+debian-47: FLAGS_LIB = -L/home/user/gcc-4.7/output/lib -Wl,-rpath -Wl,/home/user/gcc-4.7/output/lib
+debian-47: all
+deb-47: debian-47 distrib/morphdetect.equivs
+	equivs-build distrib/morphdetect.equivs
