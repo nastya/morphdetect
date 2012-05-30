@@ -135,6 +135,8 @@ void DetectSimilar::unpack()
 
 string DetectSimilar::analyze()
 {
+	if (_data_size == 0)
+		return string();
 	unpack();
 	//cerr << "QUEUE SIZE: " << _queue.size() << endl;
 	for (unsigned int i = 0; i < _queue.size();  i++)
