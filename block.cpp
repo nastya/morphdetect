@@ -4,6 +4,19 @@
 #include <iostream>
 #include <assert.h>
 
+#define DFS(function, done, ...) \
+	done->insert(this); \
+	for (auto it = _to.begin(); it != _to.end(); ++it) \
+		if (!done->count(*it)) \
+			(*it)->function(done, ##__VA_ARGS__);
+
+#define DFS_CLONE(function, done, ...) \
+	done->insert(this); \
+	auto copy_to = _to; \
+	for (auto it = copy_to.begin(); it != copy_to.end(); ++it) \
+		if (!done->count(*it)) \
+			(*it)->function(done, ##__VA_ARGS__);
+
 BlockInfo::BlockInfo(Cache* cache, UIntPtr data_start, UIntPtr data_end, UIntPtr entry_point, bool resp)
 	:_data_start(data_start), _data_end(data_end), _first_block(true), _cache(cache)
 {
@@ -130,18 +143,18 @@ void BlockInfo::generateDot(string filename, vector <BlockInfo*>* roots)
 	out << "digraph CFG {" << endl;
 	set <BlockInfo*> done;
 	if (roots == NULL)
-		generateDot(out, &done);
+		generateDot(&done, out);
 	else
 	{
 		for (auto it = roots->begin(); it != roots->end(); ++it)
 		{
-			(*it)->generateDot(out, &done);
+			(*it)->generateDot(&done, out);
 		}
 	}
 	out << "}";
 	out.close();
 }
-void BlockInfo::generateDot(ostream& out, set<BlockInfo *> *done)
+void BlockInfo::generateDot(set<BlockInfo *> *done, ostream &out)
 {
 	out<< "\t" << "b" << (void *) this <<" [ shape=box, label=\"";
 //	out<<(void*)this << " block"<<"\\n";
@@ -159,21 +172,16 @@ void BlockInfo::generateDot(ostream& out, set<BlockInfo *> *done)
 	{
 		out << "\t" << "b" << (void *) this << " -> b" << (void *) *it << endl;
 	}
-	done->insert(this);
-	for (auto it = _to.begin(); it != _to.end(); ++it)
-	{
-		if (!done->count(*it))
-			(*it)->generateDot(out, done);
-	}
+	DFS(generateDot, done, out)
 }
 
 void BlockInfo::getEIPSPasse(unordered_set<int>* s)
 {
 	set <BlockInfo*> done;
-	_getEIPSPasse(s, &done);
+	getEIPSPasse(&done, s);
 }
 
-void BlockInfo::_getEIPSPasse(unordered_set<int>* s, set <BlockInfo*> *done)
+void BlockInfo::getEIPSPasse(set<BlockInfo *> *done, unordered_set<int> *s)
 {
 	for (auto it = _subBlocks.begin(); it != _subBlocks.end(); ++it)
 	{
@@ -184,12 +192,7 @@ void BlockInfo::_getEIPSPasse(unordered_set<int>* s, set <BlockInfo*> *done)
 			_cache->getInstruction(eip, &len);
 		}
 	}
-	done->insert(this);
-	for (auto it = _to.begin(); it != _to.end(); ++it)
-	{
-		if (!done->count(*it))
-			(*it)->_getEIPSPasse(s, done);
-	}
+	DFS(getEIPSPasse, done, s)
 }
 
 BlockInfo* BlockInfo::divideBlock(UIntPtr addr)
@@ -331,12 +334,7 @@ void BlockInfo::process()
 
 void BlockInfo::dfs(set <BlockInfo*> *done)
 {
-	done->insert(this);
-	for (auto it = _to.begin(); it != _to.end(); ++it)
-	{
-		if (!done->count(*it))
-			(*it)->dfs(done);
-	}
+	DFS(dfs, done)
 }
 
 void BlockInfo::mergeBlocks()
@@ -354,13 +352,8 @@ void BlockInfo::clearOppositeInstructions(unordered_map<string, string>* opposit
 
 void BlockInfo::clearOppositeInstructions(set <BlockInfo* > *done, unordered_map<string, string>* opposite)
 {
-	done->insert(this);
 	_clearOppositeInstructions(opposite);
-	for(auto it = _to.begin(); it != _to.end(); ++it)
-	{
-		if (!done->count(*it))
-			(*it)->clearOppositeInstructions(done, opposite);
-	}
+	DFS(clearOppositeInstructions, done, opposite)
 }
 
 vector<BlockInfo::SubBlock>::iterator BlockInfo::cutSubBlock(vector<BlockInfo::SubBlock>::iterator it, 
@@ -472,21 +465,12 @@ void BlockInfo::mergeBlocks(set<BlockInfo*> *done)
 			_from.clear();
 			set <BlockInfo*> children = parent->_to;
 			for (auto it = children.begin(); it != children.end(); ++it)
-			{
 				if (!done->count(*it))
 					(*it)->mergeBlocks(done);
-			}
 			return;
 		}
 	}
-	done->insert(this);
-	set <BlockInfo*> children = _to;
-	for (auto it = children.begin(); it != children.end(); ++it)
-	{
-		if (!done->count(*it))
-			(*it)->mergeBlocks(done);
-	}
-	
+	DFS_CLONE(mergeBlocks, done)
 }
 
 bool BlockInfo::isDirectJx(UIntPtr* addr, int* type)
@@ -574,13 +558,7 @@ BlockInfo* BlockInfo::removeJxJnx(set<BlockInfo*> *done)
 			return suc_block->removeJxJnx(done);	
 		}
 	}
-	done->insert(this);
-	set <BlockInfo*> children = _to;
-	for (auto it = children.begin(); it != children.end(); ++it)
-	{
-		if (!done->count(*it))
-			(*it)->removeJxJnx(done);
-	}
+	DFS_CLONE(removeJxJnx, done)
 	return this;
 }
 
@@ -677,12 +655,6 @@ BlockInfo* BlockInfo::removeJumpsOnly(set<BlockInfo*> *done)
 			}
 		}
 	}
-	done->insert(this);
-	set <BlockInfo*> children = _to;
-	for (auto it = children.begin(); it != children.end(); ++it)
-	{
-		if (!done->count(*it))
-			(*it)->removeJumpsOnly(done);
-	}
+	DFS_CLONE(removeJumpsOnly, done)
 	return this;
 }

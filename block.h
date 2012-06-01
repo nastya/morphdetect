@@ -59,9 +59,9 @@ private:
 	void addBranch(UIntPtr, UIntPtr);
 	BlockInfo* divideBlock(UIntPtr);
 	
-	void generateDot(ostream& out, set<BlockInfo *> *done);
+	void generateDot(set<BlockInfo *> *done, ostream &out);
 	
-	void _getEIPSPasse(unordered_set<int>* s, set <BlockInfo*>* done);
+	void getEIPSPasse(set<BlockInfo *> *done, unordered_set<int> *s);
 
 	UIntPtr _data_start, _data_end;
 	set <BlockInfo*> _to;
