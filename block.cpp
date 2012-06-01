@@ -350,12 +350,6 @@ void BlockInfo::clearOppositeInstructions(unordered_map<string, string>* opposit
 	clearOppositeInstructions(&done, opposite);
 }
 
-void BlockInfo::clearOppositeInstructions(set <BlockInfo* > *done, unordered_map<string, string>* opposite)
-{
-	_clearOppositeInstructions(opposite);
-	DFS(clearOppositeInstructions, done, opposite)
-}
-
 vector<BlockInfo::SubBlock>::iterator BlockInfo::cutSubBlock(vector<BlockInfo::SubBlock>::iterator it, 
 							     UIntPtr addr, int len)
 {
@@ -388,7 +382,7 @@ vector<BlockInfo::SubBlock>::iterator BlockInfo::cutSubBlock(vector<BlockInfo::S
 	}
 }
 
-void BlockInfo::_clearOppositeInstructions(unordered_map<string, string>* opposite)
+void BlockInfo::clearOppositeInstructions(set<BlockInfo *> *done, unordered_map<string, string> *opposite)
 {
 	char prev_mnem[16], prev_arg_mnem1[32], prev_arg_mnem2[32], prev_arg_mnem3[32];
 	prev_mnem[0]='\0';
@@ -444,6 +438,7 @@ void BlockInfo::_clearOppositeInstructions(unordered_map<string, string>* opposi
 		if (!it_changed)
 			++it;
 	}
+	DFS(clearOppositeInstructions, done, opposite)
 }
 
 void BlockInfo::mergeBlocks(set<BlockInfo*> *done)

@@ -46,7 +46,6 @@ private:
 	vector<BlockInfo::SubBlock>::iterator cutSubBlock(vector<BlockInfo::SubBlock>::iterator it, UIntPtr addr, int len);
 
 	void clearOppositeInstructions(set <BlockInfo* > *done, unordered_map<string, string>* opposite);
-	void _clearOppositeInstructions(unordered_map<string, string> *);
 	
 	void removeJumpsInside();	
 	void mergeBlocks(set<BlockInfo*> *done);
