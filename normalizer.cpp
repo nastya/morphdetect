@@ -32,7 +32,7 @@ void Normalizer::normalize()
 	/*
 	cout<<"Root ="<<(void*)_root<<endl;
 	cout<<"Known blocks: " << _known.size() << endl;
-	for (set<BlockInfo*>::iterator it = _known.begin(); it != _known.end(); ++it)
+	for (auto it = _known.begin(); it != _known.end(); ++it)
 		cout<<(void *)(*it)<<" ";
 	cout<<endl;
 	*/
@@ -40,12 +40,12 @@ void Normalizer::normalize()
 	_root->dfs(&reached_blocks);
 	/*
 	cout<<"Reached blocks (" << reached_blocks.size() << ") :";
-	for (set<BlockInfo*>::iterator it = reached_blocks.begin(); it != reached_blocks.end(); ++it)
+	for (auto it = reached_blocks.begin(); it != reached_blocks.end(); ++it)
 		cout << " " << (void *)(*it);
 	cout<<endl;
 	*/
 	set<BlockInfo*> known_before = _known;
-	for (set<BlockInfo*>::iterator it = known_before.begin(); it != known_before.end(); ++it)
+	for (auto it = known_before.begin(); it != known_before.end(); ++it)
 	{
 		if (!reached_blocks.count(*it))
 			delete (*it);

@@ -98,7 +98,7 @@ void DetectSimilar::unpack()
 		{
 			//cerr << "Decryptor found" << endl;
 			list <int> positions = _fd->get_start_list();
-			for (list <int>::iterator it = positions.begin(); it != positions.end(); it++)
+			for (auto it = positions.begin(); it != positions.end(); it++)
 			{
 				//cerr<<"Decryptor on position"<<(*it)<<endl;
 				//cout<<"Position: "<<(*it)<<"; size: "<<(*it2)<<endl;

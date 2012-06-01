@@ -33,11 +33,11 @@ BlockInfo::BlockInfo(BlockInfo* parent, UIntPtr entry_point)
 BlockInfo::~BlockInfo()
 {
 	//cerr<<"Deleting..."<<(void*)this<<endl;
-	for (set <BlockInfo*>::iterator it = _from.begin(); it != _from.end(); ++it)
+	for (auto it = _from.begin(); it != _from.end(); ++it)
 	{
 		(*it)->_to.erase(this);
 	}
-	for (set <BlockInfo*>::iterator it = _to.begin(); it != _to.end(); ++it)
+	for (auto it = _to.begin(); it != _to.end(); ++it)
 	{
 		(*it)->_from.erase(this);
 	}
@@ -71,7 +71,7 @@ InstructionQueue BlockInfo::getInstructions()
 		marked.insert(element);
 		queue.erase(element);
 		extraQueue.erase(element);
-		for (vector<SubBlock>::iterator it = element->_subBlocks.begin(); it != element->_subBlocks.end(); ++it)
+		for (auto it = element->_subBlocks.begin(); it != element->_subBlocks.end(); ++it)
 		{
 			int len;
 			for (UIntPtr eip = it->entry_point; eip < it->entry_point + it->size; eip += len)
@@ -88,13 +88,13 @@ InstructionQueue BlockInfo::getInstructions()
 					instructions.push_back(InstructionInfo(disasm, len));
 			}
 		}
-		for (set<BlockInfo*>::iterator it = element->_to.begin(); it != element->_to.end(); ++it)
+		for (auto it = element->_to.begin(); it != element->_to.end(); ++it)
 		{
 			if (!marked.count(*it))
 			{
 				extraQueue.insert(*it);
 				bool add = true;
-				for (set<BlockInfo*>::iterator par = (*it)->_from.begin(); par != (*it)->_from.end(); ++par)
+				for (auto par = (*it)->_from.begin(); par != (*it)->_from.end(); ++par)
 				{
 					if ((*par != *it) && !(marked.count(*par)))
 					{
@@ -133,7 +133,7 @@ void BlockInfo::generateDot(string filename, vector <BlockInfo*>* roots)
 		generateDot(out, &done);
 	else
 	{
-		for (vector <BlockInfo*>::iterator it = roots->begin(); it != roots->end(); ++it)
+		for (auto it = roots->begin(); it != roots->end(); ++it)
 		{
 			(*it)->generateDot(out, &done);
 		}
@@ -145,7 +145,7 @@ void BlockInfo::generateDot(ostream& out, set<BlockInfo *> *done)
 {
 	out<< "\t" << "b" << (void *) this <<" [ shape=box, label=\"";
 //	out<<(void*)this << " block"<<"\\n";
-	for (vector <SubBlock>::iterator it = _subBlocks.begin(); it != _subBlocks.end(); ++it)
+	for (auto it = _subBlocks.begin(); it != _subBlocks.end(); ++it)
 	{
 		int len;
 		for (UIntPtr eip = it->entry_point; eip < it->entry_point + it->size; eip += len)
@@ -155,12 +155,12 @@ void BlockInfo::generateDot(ostream& out, set<BlockInfo *> *done)
 		}
 	}
 	out<<"\"]"<<endl;
-	for (set <BlockInfo*>::iterator it = _to.begin(); it != _to.end(); ++it)
+	for (auto it = _to.begin(); it != _to.end(); ++it)
 	{
 		out << "\t" << "b" << (void *) this << " -> b" << (void *) *it << endl;
 	}
 	done->insert(this);
-	for (set <BlockInfo*>::iterator it = _to.begin(); it != _to.end(); ++it)
+	for (auto it = _to.begin(); it != _to.end(); ++it)
 	{
 		if (!done->count(*it))
 			(*it)->generateDot(out, done);
@@ -175,7 +175,7 @@ void BlockInfo::getEIPSPasse(unordered_set<int>* s)
 
 void BlockInfo::_getEIPSPasse(unordered_set<int>* s, set <BlockInfo*> *done)
 {
-	for (vector <SubBlock>::iterator it = _subBlocks.begin(); it != _subBlocks.end(); ++it)
+	for (auto it = _subBlocks.begin(); it != _subBlocks.end(); ++it)
 	{
 		int len;
 		for (UIntPtr eip = it->entry_point; eip < it->entry_point + it->size; eip += len)
@@ -185,7 +185,7 @@ void BlockInfo::_getEIPSPasse(unordered_set<int>* s, set <BlockInfo*> *done)
 		}
 	}
 	done->insert(this);
-	for (set <BlockInfo*>::iterator it = _to.begin(); it != _to.end(); ++it)
+	for (auto it = _to.begin(); it != _to.end(); ++it)
 	{
 		if (!done->count(*it))
 			(*it)->_getEIPSPasse(s, done);
@@ -206,7 +206,7 @@ BlockInfo* BlockInfo::divideBlock(UIntPtr addr)
 	oldBlock->_to.clear();
 	oldBlock->_to.insert(newBlock);
 	// поменять всем из newBlock->_to значения в _from с _oldBlock на _newBlock
-	for (set <BlockInfo*>:: iterator it = newBlock->_to.begin(); it != newBlock->_to.end(); ++it)
+	for (auto it = newBlock->_to.begin(); it != newBlock->_to.end(); ++it)
 	{
 		(*it)->_from.erase(oldBlock);
 		(*it)->_from.insert(newBlock);
@@ -332,7 +332,7 @@ void BlockInfo::process()
 void BlockInfo::dfs(set <BlockInfo*> *done)
 {
 	done->insert(this);
-	for (set <BlockInfo*>::iterator it = _to.begin(); it != _to.end(); ++it)
+	for (auto it = _to.begin(); it != _to.end(); ++it)
 	{
 		if (!done->count(*it))
 			(*it)->dfs(done);
@@ -356,7 +356,7 @@ void BlockInfo::clearOppositeInstructions(set <BlockInfo* > *done, unordered_map
 {
 	done->insert(this);
 	_clearOppositeInstructions(opposite);
-	for(set <BlockInfo*>::iterator it = _to.begin(); it != _to.end(); ++it)
+	for(auto it = _to.begin(); it != _to.end(); ++it)
 	{
 		if (!done->count(*it))
 			(*it)->clearOppositeInstructions(done, opposite);
@@ -404,8 +404,8 @@ void BlockInfo::_clearOppositeInstructions(unordered_map<string, string>* opposi
 	prev_arg_mnem3[0]='\0';
 	int prev_len = 0;
 	UIntPtr prev_addr = 0;
-	vector <SubBlock>::iterator prev_subblock = _subBlocks.begin();
-	for (vector <SubBlock>::iterator it = _subBlocks.begin(); it != _subBlocks.end(); )
+	auto prev_subblock = _subBlocks.begin();
+	for (auto it = _subBlocks.begin(); it != _subBlocks.end(); )
 	{
 		bool it_changed = false;
 		int len;
@@ -462,7 +462,7 @@ void BlockInfo::mergeBlocks(set<BlockInfo*> *done)
 		if (parent->_to.size() == 1)
 		{
 			parent->_to = _to;
-			for (set <BlockInfo*>::iterator it = _to.begin(); it != _to.end(); ++it)
+			for (auto it = _to.begin(); it != _to.end(); ++it)
 			{
 				(*it)->_from.erase(this);
 				(*it)->_from.insert(parent);
@@ -471,7 +471,7 @@ void BlockInfo::mergeBlocks(set<BlockInfo*> *done)
 			_to.clear();
 			_from.clear();
 			set <BlockInfo*> children = parent->_to;
-			for (set <BlockInfo*>::iterator it = children.begin(); it != children.end(); ++it)
+			for (auto it = children.begin(); it != children.end(); ++it)
 			{
 				if (!done->count(*it))
 					(*it)->mergeBlocks(done);
@@ -481,7 +481,7 @@ void BlockInfo::mergeBlocks(set<BlockInfo*> *done)
 	}
 	done->insert(this);
 	set <BlockInfo*> children = _to;
-	for (set <BlockInfo*>::iterator it = children.begin(); it != children.end(); ++it)
+	for (auto it = children.begin(); it != children.end(); ++it)
 	{
 		if (!done->count(*it))
 			(*it)->mergeBlocks(done);
@@ -543,7 +543,7 @@ BlockInfo* BlockInfo::removeJxJnx(set<BlockInfo*> *done)
 	{
 		bool caseJxJnx = false;
 		BlockInfo *suc_block = NULL;
-		for (set <BlockInfo*>::iterator it_jnx = _to.begin(); it_jnx != _to.end(); ++it_jnx)
+		for (auto it_jnx = _to.begin(); it_jnx != _to.end(); ++it_jnx)
 		{
 			if ((*it_jnx)->isDirectJx(&addrJnx,&jnxtype) && (jxtype == -jnxtype) && (addrJx == addrJnx) &&
 				(*it_jnx)->_from.size() == 1)
@@ -557,7 +557,7 @@ BlockInfo* BlockInfo::removeJxJnx(set<BlockInfo*> *done)
 		}
 		if (caseJxJnx && suc_block != NULL)
 		{
-			for (set <BlockInfo*>::iterator it_par = _from.begin(); it_par != _from.end(); ++it_par)
+			for (auto it_par = _from.begin(); it_par != _from.end(); ++it_par)
 			{
 				(*it_par)->_to.erase(this);
 				(*it_par)->_to.insert(suc_block);
@@ -576,7 +576,7 @@ BlockInfo* BlockInfo::removeJxJnx(set<BlockInfo*> *done)
 	}
 	done->insert(this);
 	set <BlockInfo*> children = _to;
-	for (set <BlockInfo*>::iterator it = children.begin(); it != children.end(); ++it)
+	for (auto it = children.begin(); it != children.end(); ++it)
 	{
 		if (!done->count(*it))
 			(*it)->removeJxJnx(done);
@@ -653,7 +653,7 @@ BlockInfo* BlockInfo::removeJumpsOnly(set<BlockInfo*> *done)
 			{
 				BlockInfo* child = *(_to.begin());
 				child->_from.erase(this);
-				for (set <BlockInfo*>::iterator it = _from.begin(); it != _from.end(); ++it)
+				for (auto it = _from.begin(); it != _from.end(); ++it)
 				{
 					BlockInfo* parent = (*it);
 					parent->_to.erase(this);
@@ -667,7 +667,7 @@ BlockInfo* BlockInfo::removeJumpsOnly(set<BlockInfo*> *done)
 			}
 			if (_from.size() != 0 && _to.size() == 0)
 			{
-				for (set <BlockInfo*>::iterator it = _from.begin(); it != _from.end(); ++it)
+				for (auto it = _from.begin(); it != _from.end(); ++it)
 				{
 					BlockInfo* parent = (*it);
 					parent->_to.erase(this);
@@ -679,7 +679,7 @@ BlockInfo* BlockInfo::removeJumpsOnly(set<BlockInfo*> *done)
 	}
 	done->insert(this);
 	set <BlockInfo*> children = _to;
-	for (set<BlockInfo*>::iterator it = children.begin(); it != children.end(); ++it)
+	for (auto it = children.begin(); it != children.end(); ++it)
 	{
 		if (!done->count(*it))
 			(*it)->removeJumpsOnly(done);

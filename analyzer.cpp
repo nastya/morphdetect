@@ -60,7 +60,7 @@ void Analyzer::loadShellcodes(char* dirName)
 	_shellcodes = new unsigned char* [_amountShellcodes];
 	_shellcodeSizes = new int [_amountShellcodes];
 	int cur = 0;
-	for (vector <string>::iterator it = _shellcodeNames.begin(); it != _shellcodeNames.end(); ++it, ++cur)
+	for (auto it = _shellcodeNames.begin(); it != _shellcodeNames.end(); ++it, ++cur)
 	{
 		reader.load(string(dirName)+ (*it));
 		_shellcodes[cur] = new unsigned char [reader.size()];
