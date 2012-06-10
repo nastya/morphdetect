@@ -38,49 +38,6 @@ size_t CompareUtils::compare_simple(unordered_map<mblock, size_t> &sample_stat, 
 }
 
 /**
- * Compare with malware samples in N-gram method.
- */
-
-size_t CompareUtils::best_match_simple(MemoryBlock &sample, vector<Sample> &shellcodes, float threshold, float *coef_out, float *ans_out)
-{
-	TimerAnalyzer::start(TimeMatch);
-	float max_coef = 0;
-	int max_ans = 0, ind_max = 0;
-
-	unordered_map<mblock, size_t> sample_stat;
-	const mbyte *b = sample.data;
-	for (size_t i = 0; i <= sample.size - sizeof(mblock); i++, b++)
-		sample_stat[*(const mblock *) b]++;
-
-	for (int i = 0; i < shellcodes.size(); i++)
-	{
-		int ans = compare_simple(sample_stat, shellcodes[i]);
-		float coef = ans * 1.0 / shellcodes[i].size;
-
-		if (coef > threshold) {
-			if (coef > max_coef)
-			{
-				max_coef = coef;
-			}
-			if (ans > max_ans)
-			{
-				max_ans = ans;
-				ind_max = i;
-			}
-		}
-	}
-
-	if (ans_out != NULL)
-		*ans_out = max_ans;
-
-	if (coef_out != NULL)
-		*coef_out = max_coef;
-
-	TimerAnalyzer::stop(TimeMatch);
-	return (max_coef > threshold) ? ind_max : -1;
-}
-
-/**
  * Division of analyzed data before LCS. Returns maximum matched bytes.
  */
 
@@ -128,41 +85,3 @@ bool CompareUtils::possible_diff(const mbyte *sample, size_t sample_size, Sample
 
 	return total >= threshold * shellcode.size;
 }
-
-/**
- * Compare function for Diff analyzer.
- */
-
-size_t CompareUtils::best_match(MemoryBlock &sample, vector<Sample> &shellcodes, float threshold, float *coef_out, float *ans_out)
-{
-	TimerAnalyzer::start(TimeMatch);
-	float max_coef = 0;
-	int max_ans = 0, ind_max = 0;
-	for (int i = 0; i < shellcodes.size(); i++)
-	{
-		int ans = compare_diff(sample, shellcodes[i], threshold);
-		float coef = ans * 1.0 / shellcodes[i].size;
-
-		if (coef > threshold) {
-			if (coef > max_coef)
-			{
-				max_coef = coef;
-			}
-			if (ans > max_ans)
-			{
-				max_ans = ans;
-				ind_max = i;
-			}
-		}
-	}
-
-	if (ans_out != NULL)
-		*ans_out = max_ans;
-
-	if (coef_out != NULL)
-		*coef_out = max_coef;
-
-	TimerAnalyzer::stop(TimeMatch);
-	return (max_coef > threshold) ? ind_max : -1;
-}
-
