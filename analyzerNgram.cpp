@@ -17,8 +17,8 @@ AnalyzerNgram::AnalyzerNgram(const unsigned char* data, uint size)
 
 string AnalyzerNgram::analyze()
 {
-	int ind_max = CompareUtils::best_match_simple(_data, _data_size, (const unsigned char**) _shellcodes, _shellcodeSizes, _amountShellcodes, THRESHOLD);
+	int ind_max = CompareUtils::best_match_simple(_data, _shellcodes, THRESHOLD);
 	if (ind_max >= 0)
-		return _shellcodeNames[ind_max];
+		return _shellcodes[ind_max].name;
 	return string();
 }

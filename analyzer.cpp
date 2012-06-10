@@ -8,24 +8,14 @@ using namespace std;
 
 Analyzer::Analyzer()
 {
-	_data = NULL;
-	_shellcodes = NULL;
-	_amountShellcodes = 0;
-	_shellcodeSizes = NULL;
+	_data.data = NULL;
 	_shellcodes_loaded = false;
 }
 
-void Analyzer::load(const unsigned char* data, uint size)
+Analyzer::Analyzer(const unsigned char* data, uint size)
 {
-	_data = data;
-	_data_size = size;
-}
-
-Analyzer::Analyzer(const unsigned char* data, uint size): _data(data), _data_size(size)
-{
-	_shellcodes = NULL;
-	_amountShellcodes = 0;
-	_shellcodeSizes = NULL;
+	_data.data = data;
+	_data.size = size;
 	_shellcodes_loaded = false;
 }
 
@@ -34,57 +24,40 @@ Analyzer::~Analyzer()
 	clear();
 }
 
+void Analyzer::load(const unsigned char* data, uint size)
+{
+	_data.data = data;
+	_data.size = size;
+}
+
 void Analyzer::clear()
 {
-	if (_shellcodes != NULL)
-	{
-		for (int i = 0; i < _amountShellcodes; i++)
-		{
-			delete [] _shellcodes[i];
-		}
-		delete [] _shellcodes;
-	}
-	if (_shellcodeSizes != NULL)
-		delete [] _shellcodeSizes;
-	_shellcodes = NULL;
-	_shellcodeSizes = NULL;
-	_shellcodeNames.clear();
+	_shellcodes.clear();
 	_shellcodes_loaded = false;
 }
 
 void Analyzer::loadShellcodes(char* dirName)
 {
 	clear();
-	getdir(string(dirName), _shellcodeNames);
-	_amountShellcodes = _shellcodeNames.size();
-	_shellcodes = new unsigned char* [_amountShellcodes];
-	_shellcodeSizes = new int [_amountShellcodes];
-	int cur = 0;
-	for (auto it = _shellcodeNames.begin(); it != _shellcodeNames.end(); ++it, ++cur)
-	{
-		reader.load(string(dirName)+ (*it));
-		_shellcodes[cur] = new unsigned char [reader.size()];
-		_shellcodeSizes[cur] = reader.size();
-		memcpy(_shellcodes[cur], reader.pointer(), reader.size());
-	}
-	_shellcodes_loaded = true;
-}
 
-int Analyzer::getdir (string dir, vector<string> &files)
-{
+	string dir(dirName);
 	DIR *dp;
 	struct dirent *dirp;
-	if((dp  = opendir(dir.c_str())) == NULL) {
-		cout << "Error(" << errno << ") opening " << dir << endl;
-		return errno;
+	if ((dp = opendir(dirName)) == NULL)
+	{
+		cerr << "Error(" << errno << ") opening " << dir << endl;
+		return;
 	}
-
-	while ((dirp = readdir(dp)) != NULL) {
-		if (strcmp(dirp->d_name,".")!=0 && strcmp(dirp->d_name,"..")!=0)
-				files.push_back(string(dirp->d_name));
+	while ((dirp = readdir(dp)) != NULL)
+	{
+		if (strcmp(dirp->d_name,".") == 0 || strcmp(dirp->d_name,"..") == 0)
+			continue;
+		string file(dirp->d_name);
+		_shellcodes.push_back(Sample(file, dir + file));
 	}
 	closedir(dp);
-	return 0;
+
+	_shellcodes_loaded = true;
 }
 
 bool Analyzer::loaded()
@@ -95,16 +68,11 @@ bool Analyzer::loaded()
 ostream & Analyzer::operator<<(ostream &s)
 {
 	s << _className << endl;
-	s << _amountShellcodes << endl;
-	int i = 0;
-	for (auto it = _shellcodeNames.begin(); it != _shellcodeNames.end(); ++it, i++)
-	{
-		s << (*it) << " " <<_shellcodeSizes[i] << endl;
-	}
-	for (int i = 0; i < _amountShellcodes; i++)
-	{
-		s.write((const char *) _shellcodes[i], _shellcodeSizes[i]);
-	}
+	s << _shellcodes.size() << endl;
+	for (auto it = _shellcodes.begin(); it != _shellcodes.end(); ++it)
+		s << it->name << " " << it->size << endl;
+	for (auto it = _shellcodes.begin(); it != _shellcodes.end(); ++it)
+		s.write((const char *) it->data, it->size);
 	return s;
 }
 istream & Analyzer::operator>>(istream &s)
@@ -118,21 +86,20 @@ istream & Analyzer::operator>>(istream &s)
 		return s;
 	}
 	clear();
-	s >> _amountShellcodes;
-	_shellcodes = new unsigned char* [_amountShellcodes];
-	_shellcodeSizes = new int [_amountShellcodes];
+	int amountShellcodes;
+	s >> amountShellcodes;
 	
-	for (int i = 0; i < _amountShellcodes; i++)
+	for (int i = 0; i < amountShellcodes; i++)
 	{
 		s >> name;
-		_shellcodeNames.push_back(name);
-		s >> _shellcodeSizes[i];
-		_shellcodes[i] = new unsigned char [_shellcodeSizes[i]];
+		int shellcodeSize;
+		s >> shellcodeSize;
+		_shellcodes.push_back(Sample(name, shellcodeSize));
 	}
 	s.ignore();
-	for (int i = 0; i < _amountShellcodes; i++)
+	for (int i = 0; i < amountShellcodes; i++)
 	{
-		s.read((char *) _shellcodes[i], _shellcodeSizes[i]);
+		s.read((char *) _shellcodes[i].data, _shellcodes[i].size);
 	}
 	_shellcodes_loaded = true;
 	return s;

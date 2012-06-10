@@ -3,7 +3,11 @@
 
 #include <vector>
 #include <string>
-#include <finddecryptor/reader.h>
+#include <istream>
+#include <ostream>
+#include "sample.h"
+
+using namespace std;
 
 class Analyzer
 {
@@ -20,14 +24,8 @@ public:
 
 protected:
 	virtual void clear();
-	Reader reader;
-	int getdir(string dir, vector<string> &files);
-	unsigned char** _shellcodes;
-	vector <string> _shellcodeNames;
-	int _amountShellcodes;
-	int* _shellcodeSizes;
-	const unsigned char* _data;
-	uint _data_size;
+	vector<Sample> _shellcodes;
+	MemoryBlock _data;
 	string _className;
 	bool _shellcodes_loaded;
 };

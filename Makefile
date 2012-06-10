@@ -17,6 +17,8 @@ OBJECTS_LIB	= \
 		instructionQueue.o \
 		compareUtils.o \
 		detectSimilar.o \
+		memoryBlock.o \
+		sample.o \
 		timer.o \
 		cache.o \
 
@@ -54,6 +56,12 @@ analyzerCFG.o: analyzerCFG.cpp analyzerCFG.h analyzer.h block.h instructionQueue
 
 analyzerTrace.o: analyzerTrace.cpp analyzerTrace.h analyzer.h instructionQueue.h compareUtils.h
 	$(CXX) $(FLAGS) -c analyzerTrace.cpp
+
+memoryBlock.o: memoryBlock.cpp memoryBlock.h
+	$(CXX) $(FLAGS) -c memoryBlock.cpp
+
+sample.o: sample.cpp sample.h memoryBlock.h
+	$(CXX) $(FLAGS) -c sample.cpp
 
 timer.o: timer.cpp timer.h
 	$(CXX) $(FLAGS) -c timer.cpp

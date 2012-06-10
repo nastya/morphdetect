@@ -48,11 +48,9 @@ void AnalyzerTrace::clear()
 
 void AnalyzerTrace::processShellcodes()
 {
-	_shellcodeInstructions = new InstructionQueue[_amountShellcodes];
-	for (int i = 0; i < _amountShellcodes; i++)
-	{
-		_shellcodeInstructions[i] = buildTrace(0, _shellcodes[i], _shellcodeSizes[i]);
-	}
+	_shellcodeInstructions = new InstructionQueue[_shellcodes.size()];
+	for (int i = 0; i < _shellcodes.size(); i++)
+		_shellcodeInstructions[i] = buildTrace(0, _shellcodes[i].data, _shellcodes[i].size);
 }
 
 AnalyzerTrace::~AnalyzerTrace()
@@ -143,13 +141,13 @@ InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, in
 string AnalyzerTrace::analyze_single(int pos)
 {
 	TimerAnalyzer::start(TimeBuild);
-	_instructions = buildTrace(pos, _data, _data_size);
+	_instructions = buildTrace(pos, _data.data, _data.size);
 	TimerAnalyzer::stop(TimeBuild);
 	if (_instructions.size() == 0)
 		return string();
-	int ind_max = _instructions.bestMatch(_shellcodeInstructions, _amountShellcodes, THRESHOLD);
+	int ind_max = _instructions.bestMatch(_shellcodeInstructions, _shellcodes.size(), THRESHOLD);
 	if (ind_max >= 0)
-		return _shellcodeNames[ind_max];
+		return _shellcodes[ind_max].name;
 	return string();
 }
 
@@ -159,7 +157,7 @@ string AnalyzerTrace::analyze()
 	string ans;
 	if (_brut)
 	{
-		for (int pos = 0; pos < _data_size - MIN_SHELLCODE_SIZE; pos++)
+		for (int pos = 0; pos < _data.size - MIN_SHELLCODE_SIZE; pos++)
 		{
 			if (_eips_passe.count(pos))
 				continue;

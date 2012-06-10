@@ -5,6 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include <unordered_map>
+#include "sample.h"
 using namespace std;
 
 typedef uint8_t mbyte;
@@ -13,11 +14,11 @@ typedef uint32_t mblock;
 class CompareUtils {
 public:
 	static size_t cleanup(mbyte *dst, const mbyte *src, size_t src_len);
-	static size_t compare_simple(unordered_map<mblock, size_t> &sample_stat, const mbyte* model, size_t model_size);
-	static size_t best_match_simple(const mbyte *sample, size_t sample_size, const mbyte **models, const int *model_sizes, int models_count, float threshold, float *coef_out = NULL, float *ans_out = NULL);
-	static size_t compare_diff(const mbyte *sample, size_t sample_size, const mbyte *model, size_t model_size, float threshold);
-	static bool possible_diff(const mbyte *sample, size_t sample_size, const mbyte *model, size_t model_size, float threshold);
-	static size_t best_match(const mbyte *sample, size_t sample_size, const mbyte **models, const int *model_sizes, int models_count, float threshold, float *coef_out = NULL, float *ans_out = NULL);
+	static size_t compare_simple(unordered_map<mblock, size_t> &sample_stat, Sample &shellcode);
+	static size_t best_match_simple(MemoryBlock &sample, vector<Sample> &shellcodes, float threshold, float *coef_out = NULL, float *ans_out = NULL);
+	static size_t compare_diff(MemoryBlock &sample, Sample &shellcode, float threshold);
+	static bool possible_diff(const mbyte *sample, size_t sample_size, Sample &shellcode, float threshold);
+	static size_t best_match(MemoryBlock &sample, vector<Sample> &shellcodes, float threshold, float *coef_out = NULL, float *ans_out = NULL);
 
 	template<class T1, class T2> static inline size_t longest_common_subsequence(T1 &s1, T2 &s2)
 	{
