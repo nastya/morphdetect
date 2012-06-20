@@ -1,6 +1,5 @@
 #include "analyzerDiff.h"
-#include "compareUtils.h"
-#include <iostream>
+#include "timer.h"
 
 using namespace std;
 
@@ -22,12 +21,14 @@ string AnalyzerDiff::analyze()
 	TimerAnalyzer::start(TimeMatch);
 	float max_coef = 0;
 	int max_ans = 0, ind_max = 0;
-	for (int i = 0; i < _shellcodes.size(); i++)
+
+	for (unsigned int i = 0; i < _shellcodes.size(); i++)
 	{
-		int ans = CompareUtils::compare_diff(_data, _shellcodes[i], THRESHOLD);
+		int ans = _data.compareDiff(_shellcodes[i], THRESHOLD);
 		float coef = ans * 1.0 / _shellcodes[i].size;
 
-		if (coef > THRESHOLD) {
+		if (coef > THRESHOLD)
+		{
 			if (coef > max_coef)
 			{
 				max_coef = coef;

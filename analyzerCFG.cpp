@@ -44,7 +44,7 @@ void AnalyzerCFG::clear()
 void AnalyzerCFG::processShellcodes()
 {
 	_shellcodeInstructions = new InstructionQueue[_shellcodes.size()];
-	for (int i = 0; i < _shellcodes.size(); i++)
+	for (unsigned int i = 0; i < _shellcodes.size(); i++)
 	{
 		_cache.clear();
 		_shellcodeInstructions[i] = buildCFG(0, _shellcodes[i].data, _shellcodes[i].size);
@@ -111,7 +111,7 @@ string AnalyzerCFG::analyze()
 	_cache.clear();
 	if (_brut)
 	{
-		for (int pos = 0; pos < _data.size - MIN_SHELLCODE_SIZE; pos++)
+		for (int pos = 0; pos < (int) _data.size - MIN_SHELLCODE_SIZE; pos++)
 		{
 			if (!_eips_passe.count(pos))
 			{

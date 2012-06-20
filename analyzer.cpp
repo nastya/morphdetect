@@ -8,14 +8,12 @@ using namespace std;
 
 Analyzer::Analyzer()
 {
-	_data.data = NULL;
 	_shellcodes_loaded = false;
 }
 
 Analyzer::Analyzer(const unsigned char* data, uint size)
 {
-	_data.data = data;
-	_data.size = size;
+	_data.link(data, size);
 	_shellcodes_loaded = false;
 }
 
@@ -26,8 +24,7 @@ Analyzer::~Analyzer()
 
 void Analyzer::load(const unsigned char* data, uint size)
 {
-	_data.data = data;
-	_data.size = size;
+	_data.link(data, size);
 }
 
 void Analyzer::clear()

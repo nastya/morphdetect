@@ -7,6 +7,7 @@ Sample::Sample(const Sample &sample)
 {}
 
 Sample::Sample(string n, string filePath)
+ : MemoryBlock()
 {
 	name = n;
 	Reader reader;

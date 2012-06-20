@@ -49,7 +49,7 @@ void AnalyzerTrace::clear()
 void AnalyzerTrace::processShellcodes()
 {
 	_shellcodeInstructions = new InstructionQueue[_shellcodes.size()];
-	for (int i = 0; i < _shellcodes.size(); i++)
+	for (unsigned int i = 0; i < _shellcodes.size(); i++)
 		_shellcodeInstructions[i] = buildTrace(0, _shellcodes[i].data, _shellcodes[i].size);
 }
 
@@ -157,7 +157,7 @@ string AnalyzerTrace::analyze()
 	string ans;
 	if (_brut)
 	{
-		for (int pos = 0; pos < _data.size - MIN_SHELLCODE_SIZE; pos++)
+		for (int pos = 0; pos < (int) _data.size - MIN_SHELLCODE_SIZE; pos++)
 		{
 			if (_eips_passe.count(pos))
 				continue;
