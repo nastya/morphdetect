@@ -5,16 +5,16 @@
 #include <assert.h>
 
 #define DFS(function, done, ...) \
-	done->insert(this); \
+	done.insert(this); \
 	for (auto it = _to.begin(); it != _to.end(); ++it) \
-		if (!done->count(*it)) \
+		if (!done.count(*it)) \
 			(*it)->function(done, ##__VA_ARGS__);
 
 #define DFS_CLONE(function, done, ...) \
-	done->insert(this); \
+	done.insert(this); \
 	auto copy_to = _to; \
 	for (auto it = copy_to.begin(); it != copy_to.end(); ++it) \
-		if (!done->count(*it)) \
+		if (!done.count(*it)) \
 			(*it)->function(done, ##__VA_ARGS__);
 
 BlockInfo::BlockInfo(Cache* cache, UIntPtr data_start, UIntPtr data_end, UIntPtr entry_point, bool resp)
@@ -147,18 +147,18 @@ void BlockInfo::generateDot(string filename, vector <BlockInfo*>* roots)
 	out << "digraph CFG {" << endl;
 	set <BlockInfo*> done;
 	if (roots == NULL)
-		generateDot(&done, out);
+		generateDot(done, out);
 	else
 	{
 		for (auto it = roots->begin(); it != roots->end(); ++it)
 		{
-			(*it)->generateDot(&done, out);
+			(*it)->generateDot(done, out);
 		}
 	}
 	out << "}";
 	out.close();
 }
-void BlockInfo::generateDot(set<BlockInfo *> *done, ostream &out)
+void BlockInfo::generateDot(set<BlockInfo*> &done, ostream &out)
 {
 	out<< "\t" << "b" << (void *) this <<" [ shape=box, label=\"";
 //	out<<(void*)this << " block"<<"\\n";
@@ -182,10 +182,10 @@ void BlockInfo::generateDot(set<BlockInfo *> *done, ostream &out)
 void BlockInfo::getEIPSPasse(unordered_set<int>* s)
 {
 	set <BlockInfo*> done;
-	getEIPSPasse(&done, s);
+	getEIPSPasse(done, s);
 }
 
-void BlockInfo::getEIPSPasse(set<BlockInfo *> *done, unordered_set<int> *s)
+void BlockInfo::getEIPSPasse(set<BlockInfo*> &done, unordered_set<int> *s)
 {
 	for (auto it = _subBlocks.begin(); it != _subBlocks.end(); ++it)
 	{
@@ -336,7 +336,7 @@ void BlockInfo::process()
 	//cerr<<"Reached the end"<<endl;
 }
 
-void BlockInfo::dfs(set <BlockInfo*> *done)
+void BlockInfo::dfs(set<BlockInfo*> &done)
 {
 	DFS(dfs, done)
 }
@@ -344,14 +344,14 @@ void BlockInfo::dfs(set <BlockInfo*> *done)
 void BlockInfo::mergeBlocks()
 {
 	set <BlockInfo *> done;
-	mergeBlocks(&done);
+	mergeBlocks(done);
 	_normalizer->normalize();
 }
 
 void BlockInfo::clearOppositeInstructions(unordered_map<string, string>* opposite)
 {
 	set <BlockInfo*> done;
-	clearOppositeInstructions(&done, opposite);
+	clearOppositeInstructions(done, opposite);
 }
 
 vector<BlockInfo::SubBlock>::iterator BlockInfo::cutSubBlock(vector<BlockInfo::SubBlock>::iterator it, 
@@ -386,7 +386,7 @@ vector<BlockInfo::SubBlock>::iterator BlockInfo::cutSubBlock(vector<BlockInfo::S
 	}
 }
 
-void BlockInfo::clearOppositeInstructions(set<BlockInfo *> *done, unordered_map<string, string> *opposite)
+void BlockInfo::clearOppositeInstructions(set<BlockInfo*> &done, unordered_map<string, string> *opposite)
 {
 	char prev_mnem[16], prev_arg_mnem1[32], prev_arg_mnem2[32], prev_arg_mnem3[32];
 	prev_mnem[0]='\0';
@@ -445,7 +445,7 @@ void BlockInfo::clearOppositeInstructions(set<BlockInfo *> *done, unordered_map<
 	DFS(clearOppositeInstructions, done, opposite)
 }
 
-void BlockInfo::mergeBlocks(set<BlockInfo*> *done)
+void BlockInfo::mergeBlocks(set<BlockInfo*> &done)
 {
 	removeJumpsInside();
 	if (_from.size() == 1)
@@ -464,7 +464,7 @@ void BlockInfo::mergeBlocks(set<BlockInfo*> *done)
 			_from.clear();
 			set <BlockInfo*> children = parent->_to;
 			for (auto it = children.begin(); it != children.end(); ++it)
-				if (!done->count(*it))
+				if (!done.count(*it))
 					(*it)->mergeBlocks(done);
 			return;
 		}
@@ -509,7 +509,7 @@ void BlockInfo::normalize()
 BlockInfo* BlockInfo::removeJxJnx()
 {
 	set <BlockInfo*> done;
-	BlockInfo* first = removeJxJnx(&done);
+	BlockInfo* first = removeJxJnx(done);
 	if (first != NULL)
 	{
 		_normalizer->changeRoot(first);
@@ -518,7 +518,7 @@ BlockInfo* BlockInfo::removeJxJnx()
 }
 
 
-BlockInfo* BlockInfo::removeJxJnx(set<BlockInfo*> *done)
+BlockInfo* BlockInfo::removeJxJnx(set<BlockInfo*> &done)
 {
 	UIntPtr addrJx, addrJnx;
 	int jxtype, jnxtype;
@@ -578,14 +578,14 @@ void BlockInfo::removeJumpsInside()
 BlockInfo* BlockInfo::removeJumpsOnly()
 {
 	set <BlockInfo*> done;
-	BlockInfo* first = removeJumpsOnly(&done);
+	BlockInfo* first = removeJumpsOnly(done);
 	if (first!=NULL)
 		_normalizer->changeRoot(first);
 	return (first != NULL) ? first : this;
 }
 
 
-BlockInfo* BlockInfo::removeJumpsOnly(set<BlockInfo*> *done)
+BlockInfo* BlockInfo::removeJumpsOnly(set<BlockInfo*> &done)
 {
 	assert(_subBlocks.size() == 1);
 	//assert(_entry_points.size() == 1);

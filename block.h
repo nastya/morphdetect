@@ -26,7 +26,7 @@ public:
 	BlockInfo* removeJumpsOnly();
 	BlockInfo* removeJxJnx();
 	void mergeBlocks();
-	void dfs(set <BlockInfo*> *done);
+	void dfs(set<BlockInfo*> &done);
 	void clearOppositeInstructions(unordered_map<string, string> *);
 	void normalize();
 	bool isMarked(UIntPtr);
@@ -45,22 +45,22 @@ private:
 	
 	vector<BlockInfo::SubBlock>::iterator cutSubBlock(vector<BlockInfo::SubBlock>::iterator it, UIntPtr addr, int len);
 
-	void clearOppositeInstructions(set <BlockInfo* > *done, unordered_map<string, string>* opposite);
+	void clearOppositeInstructions(set<BlockInfo*> &done, unordered_map<string, string>* opposite);
 	
 	void removeJumpsInside();	
-	void mergeBlocks(set<BlockInfo*> *done);
+	void mergeBlocks(set<BlockInfo*> &done);
 	
 	bool isDirectJx(UIntPtr* addr, int* type);
-	BlockInfo* removeJxJnx(set<BlockInfo*> *done);
+	BlockInfo* removeJxJnx(set<BlockInfo*> &done);
 	
-	BlockInfo* removeJumpsOnly(set<BlockInfo*> *done);
+	BlockInfo* removeJumpsOnly(set<BlockInfo*> &done);
 	
 	void addBranch(UIntPtr, UIntPtr);
 	BlockInfo* divideBlock(UIntPtr);
 	
-	void generateDot(set<BlockInfo *> *done, ostream &out);
+	void generateDot(set<BlockInfo*> &done, ostream &out);
 	
-	void getEIPSPasse(set<BlockInfo *> *done, unordered_set<int> *s);
+	void getEIPSPasse(set<BlockInfo*> &done, unordered_set<int> *s);
 
 	UIntPtr _data_start, _data_end;
 	set <BlockInfo*> _to;

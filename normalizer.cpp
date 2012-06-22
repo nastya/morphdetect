@@ -37,7 +37,7 @@ void Normalizer::normalize()
 	cout<<endl;
 	*/
 	set <BlockInfo*> reached_blocks;
-	_root->dfs(&reached_blocks);
+	_root->dfs(reached_blocks);
 	/*
 	cout<<"Reached blocks (" << reached_blocks.size() << ") :";
 	for (auto it = reached_blocks.begin(); it != reached_blocks.end(); ++it)
