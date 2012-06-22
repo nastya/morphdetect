@@ -17,6 +17,10 @@
 		if (!done.count(*it)) \
 			(*it)->function(done, ##__VA_ARGS__);
 
+#define COMPARE(a, b, a0, b0) ((strcmp(a, a0) == 0) && (strcmp(b, b0) == 0))
+#define EQCOMPARE(a, b, a0) COMPARE(a, b, a0, a0)
+#define BICOMPARE(a, b, a0, b0) (COMPARE(a, b, a0, b0) || COMPARE(a, b, b0, a0))
+
 BlockInfo::BlockInfo(Cache* cache, UIntPtr data_start, UIntPtr data_end, UIntPtr entry_point, bool resp)
 	:_data_start(data_start), _data_end(data_end), _first_block(true), _cache(cache)
 {
@@ -348,10 +352,10 @@ void BlockInfo::mergeBlocks()
 	_normalizer->normalize();
 }
 
-void BlockInfo::clearOppositeInstructions(unordered_map<string, string>* opposite)
+void BlockInfo::clearOppositeInstructions()
 {
 	set <BlockInfo*> done;
-	clearOppositeInstructions(done, opposite);
+	clearOppositeInstructions(done);
 }
 
 vector<BlockInfo::SubBlock>::iterator BlockInfo::cutSubBlock(vector<BlockInfo::SubBlock>::iterator it, 
@@ -386,13 +390,9 @@ vector<BlockInfo::SubBlock>::iterator BlockInfo::cutSubBlock(vector<BlockInfo::S
 	}
 }
 
-void BlockInfo::clearOppositeInstructions(set<BlockInfo*> &done, unordered_map<string, string> *opposite)
+void BlockInfo::clearOppositeInstructions(set<BlockInfo*> &done)
 {
-	char prev_mnem[16], prev_arg_mnem1[32], prev_arg_mnem2[32], prev_arg_mnem3[32];
-	prev_mnem[0]='\0';
-	prev_arg_mnem1[0]='\0';
-	prev_arg_mnem2[0]='\0';
-	prev_arg_mnem3[0]='\0';
+	DISASM *prev = NULL;
 	int prev_len = 0;
 	UIntPtr prev_addr = 0;
 	auto prev_subblock = _subBlocks.begin();
@@ -404,12 +404,17 @@ void BlockInfo::clearOppositeInstructions(set<BlockInfo*> &done, unordered_map<s
 		{
 			DISASM *disasm = _cache->getInstruction(eip, &len);
 
-			if (opposite->count(disasm->Instruction.Mnemonic) && 
-				strcmp(prev_mnem, (*opposite)[disasm->Instruction.Mnemonic].c_str()) == 0 && 
-				strcmp(prev_arg_mnem1, disasm->Argument1.ArgMnemonic) == 0 &&
-				strcmp(prev_arg_mnem2, disasm->Argument2.ArgMnemonic) == 0 &&
-				strcmp(prev_arg_mnem3, disasm->Argument3.ArgMnemonic) == 0
-			)
+			if (	prev != NULL &&
+				strcmp(prev->Argument1.ArgMnemonic, disasm->Argument1.ArgMnemonic) == 0 &&
+				strcmp(prev->Argument2.ArgMnemonic, disasm->Argument2.ArgMnemonic) == 0 &&
+				strcmp(prev->Argument3.ArgMnemonic, disasm->Argument3.ArgMnemonic) == 0 &&
+				(
+				BICOMPARE(prev->Instruction.Mnemonic, disasm->Instruction.Mnemonic, "add ", "sub ") ||
+				BICOMPARE(prev->Instruction.Mnemonic, disasm->Instruction.Mnemonic, "ror ", "rol ") ||
+				EQCOMPARE(prev->Instruction.Mnemonic, disasm->Instruction.Mnemonic, "xor ") ||
+				EQCOMPARE(prev->Instruction.Mnemonic, disasm->Instruction.Mnemonic, "xchg ") ||
+				EQCOMPARE(prev->Instruction.Mnemonic, disasm->Instruction.Mnemonic, "btc ")
+				))
 			{
 				////cerr<<"Cutting from block"<<(void *)this<<endl;
 				if (prev_subblock == it)
@@ -421,28 +426,22 @@ void BlockInfo::clearOppositeInstructions(set<BlockInfo*> &done, unordered_map<s
 					it = cutSubBlock(prev_subblock, prev_addr, prev_len);
 					it = cutSubBlock(it, eip, len);
 				}
-				prev_subblock = it;
-				prev_mnem[0]='\0';
-				prev_arg_mnem1[0]='\0';
-				prev_arg_mnem2[0]='\0';
-				prev_arg_mnem3[0]='\0';
+				prev = NULL;
 				prev_len = 0;
 				prev_addr = 0;
+				prev_subblock = it;
 				it_changed = true;
 				break;
 			}
+			prev = disasm;
 			prev_len = len;
 			prev_addr = eip;
-			strcpy(prev_mnem, disasm->Instruction.Mnemonic);
-			strcpy(prev_arg_mnem1, disasm->Argument1.ArgMnemonic);
-			strcpy(prev_arg_mnem2, disasm->Argument2.ArgMnemonic);
-			strcpy(prev_arg_mnem3, disasm->Argument3.ArgMnemonic);
 			prev_subblock = it;
 		}
 		if (!it_changed)
 			++it;
 	}
-	DFS(clearOppositeInstructions, done, opposite)
+	DFS(clearOppositeInstructions, done)
 }
 
 void BlockInfo::mergeBlocks(set<BlockInfo*> &done)
