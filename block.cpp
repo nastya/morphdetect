@@ -25,8 +25,12 @@ BlockInfo::BlockInfo(Cache* cache, UIntPtr data_start, UIntPtr data_end, UIntPtr
 	if (_markResponsable)
 	{
 		_mark = new BlockInfo* [data_end - data_start + 1];
-		for (unsigned int i = 0; i < _data_end - _data_start; i++)
+#if NULL==0
+		memset(_mark, 0, sizeof(BlockInfo*) * (data_end - data_start + 1));
+#else
+		for (unsigned int i = 0; i <= _data_end - _data_start; i++)
 			_mark[i] = NULL;
+#endif
 	}
 	_normalizer = new Normalizer(this);
 	_normalizer->remember(this);
