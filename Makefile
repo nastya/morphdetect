@@ -21,6 +21,7 @@ OBJECTS_LIB	= \
 		sample.o \
 		timer.o \
 		cache.o \
+		traceCache.o \
 
 OBJECTS		= main.o $(OBJECTS_LIB)
 
@@ -54,7 +55,7 @@ analyzerNgram.o: analyzerNgram.cpp analyzerNgram.h analyzer.h compareUtils.h
 analyzerCFG.o: analyzerCFG.cpp analyzerCFG.h analyzer.h block.h instructionQueue.h compareUtils.h
 	$(CXX) $(FLAGS) -c analyzerCFG.cpp
 
-analyzerTrace.o: analyzerTrace.cpp analyzerTrace.h analyzer.h instructionQueue.h compareUtils.h
+analyzerTrace.o: analyzerTrace.cpp analyzerTrace.h analyzer.h instructionQueue.h compareUtils.h traceCache.h
 	$(CXX) $(FLAGS) -c analyzerTrace.cpp
 
 memoryBlock.o: memoryBlock.cpp memoryBlock.h
@@ -68,6 +69,8 @@ timer.o: timer.cpp timer.h
 
 cache.o: cache.cpp cache.h
 	$(CXX) $(FLAGS) -c cache.cpp
+traceCache.o: traceCache.cpp traceCache.h
+	$(CXX) $(FLAGS) -c traceCache.cpp
 
 compareUtils.o: compareUtils.cpp compareUtils.h
 	$(CXX) $(FLAGS) -c compareUtils.cpp

@@ -51,7 +51,10 @@ void AnalyzerTrace::processShellcodes()
 {
 	_shellcodeInstructions = new InstructionQueue[_shellcodes.size()];
 	for (unsigned int i = 0; i < _shellcodes.size(); i++)
+	{
+		_cache.clear();
 		_shellcodeInstructions[i] = buildTrace(0, _shellcodes[i].data, _shellcodes[i].size);
+	}
 }
 
 AnalyzerTrace::~AnalyzerTrace()
@@ -71,9 +74,8 @@ InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, in
 	emulator->bind(r);
 	emulator->begin(pos);
 	char buff[10];
-	DISASM myDisasm;
-	(void) memset (&(myDisasm), 0, sizeof(DISASM));
-	myDisasm.EIP = (UIntPtr) buff;
+	int len;
+	DISASM *disasm;
 
 	unordered_map<int, int> eip_passe;
 	int eip_jx = 0, eip_jmp = 0;
@@ -91,22 +93,22 @@ InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, in
 			//cerr << "Execution error"<< endl;
 			break;
 		}
-		int len = DisasmWrapper(&myDisasm);
+		disasm = _cache.getInstruction(eip, buff, &len);
 		/*
-		cerr << i << ": " << "EIP: 0x" << hex << eip << " " << myDisasm.CompleteInstr << ", len = " << len <<
-				", opcode " << myDisasm.Instruction.Opcode << endl;
+		cerr << i << ": " << "EIP: 0x" << hex << eip << " " << disasm->CompleteInstr << ", len = " << len <<
+				", opcode " << disasm->Instruction.Opcode << endl;
 		*/
 		if (len == UNKNOWN_OPCODE)
 		{
 			//cerr << "Unknown opcode encountered" << endl;
 			break;
 		}
-		int br_type = myDisasm.Instruction.BranchType;
+		int br_type = disasm->Instruction.BranchType;
 
 		if (	!br_type &&
-			myDisasm.Instruction.Opcode != 0x00 && // 0x00 = probably junk
-			myDisasm.Instruction.Opcode != 0x90) // 0x90 = NOP
-			instructions.push_back(InstructionInfo(&myDisasm, len));
+			disasm->Instruction.Opcode != 0x00 && // 0x00 = probably junk
+			disasm->Instruction.Opcode != 0x90) // 0x90 = NOP
+			instructions.push_back(InstructionInfo(disasm, len));
 
 		int prev_eip = eip;
 		if (!emulator->step())
@@ -139,7 +141,7 @@ InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, in
 			}
 			else
 			{
-				int addr_value = myDisasm.Instruction.AddrValue - myDisasm.EIP;
+				int addr_value = disasm->Instruction.AddrValue - disasm->EIP;
 				if (addr_value != 0)
 				{
 					//cerr << "Changing flow from " << eip << " to " << prev_eip + len + addr_value << endl;
@@ -169,6 +171,7 @@ string AnalyzerTrace::analyze_single(int pos)
 string AnalyzerTrace::analyze()
 {
 	_eips_passe.clear();
+	_cache.clear();
 	string ans;
 	if (_brut)
 	{

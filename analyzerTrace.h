@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <unordered_set>
 #include "instructionQueue.h"
+#include "traceCache.h"
 
 class AnalyzerTrace : public Analyzer
 {
@@ -26,6 +27,7 @@ private:
 	InstructionQueue *_shellcodeInstructions;
 	unordered_set<int> _eips_passe;
 	bool _brut;
+	TraceCache _cache;
 };
 
 
