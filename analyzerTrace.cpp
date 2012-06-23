@@ -76,6 +76,7 @@ InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, in
 	myDisasm.EIP = (UIntPtr) buff;
 
 	unordered_map<int, int> eip_passe;
+	int eip_jx = 0, eip_jmp = 0;
 	
 	for(int i = 0; i < MAX_EMULATE ; i++)
 	{
@@ -115,6 +116,19 @@ InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, in
 			continue;
 		}
 		eip = emulator->get_register(Data::EIP);
+		if (br_type)
+		{
+			if (br_type == JmpType)
+			{
+				if (eip_jmp == eip_jx && eip == eip_jmp && eip != 0
+					&& eip_passe.count(eip) && eip_passe[eip] >= LOOP_MAX_COUNT)
+				{
+					break;
+				}
+				eip_jmp = eip;
+			}
+			eip_jx = eip;
+		}
 		if (eip_passe.count(eip) && eip_passe[eip] >= LOOP_MAX_COUNT && br_type &&
 			br_type != JmpType && br_type != CallType && br_type != RetType)
 		{
