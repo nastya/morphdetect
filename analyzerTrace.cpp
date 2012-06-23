@@ -12,6 +12,7 @@
 #define MIN_SHELLCODE_SIZE 30
 #define THRESHOLD 0.5 
 #define MAX_EMULATE 5000
+#define LOOP_MAX_COUNT 10
 
 using namespace std;
 
@@ -114,7 +115,7 @@ InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, in
 			continue;
 		}
 		eip = emulator->get_register(Data::EIP);
-		if (eip_passe.count(eip) && eip_passe[eip] >= 10 && br_type &&
+		if (eip_passe.count(eip) && eip_passe[eip] >= LOOP_MAX_COUNT && br_type &&
 			br_type != JmpType && br_type != CallType && br_type != RetType)
 		{
 			if (eip != prev_eip + len)
