@@ -183,13 +183,25 @@ void BlockInfo::generateDot(set<BlockInfo*> &done, ostream &out)
 	DFS(generateDot, done, out)
 }
 
-void BlockInfo::getEIPSPasse(unordered_set<int>* s)
+void BlockInfo::getEIPSPasse(unordered_set<int> *s)
 {
-	set <BlockInfo*> done;
-	getEIPSPasse(done, s);
+	if (_first_block) {
+		const set <BlockInfo*> *all = _normalizer->known();
+		for (auto block = all->begin(); block != all->end(); ++block)
+			(*block)->getEIPSPasseOne(s);
+	} else {
+		set <BlockInfo*> done;
+		getEIPSPasse(done, s);
+	}
 }
 
 void BlockInfo::getEIPSPasse(set<BlockInfo*> &done, unordered_set<int> *s)
+{
+	getEIPSPasseOne(s);
+	DFS(getEIPSPasse, done, s)
+}
+
+void BlockInfo::getEIPSPasseOne(unordered_set<int> *s)
 {
 	for (auto it = _subBlocks.begin(); it != _subBlocks.end(); ++it)
 	{
@@ -200,7 +212,6 @@ void BlockInfo::getEIPSPasse(set<BlockInfo*> &done, unordered_set<int> *s)
 			_cache->getInstruction(eip, &len);
 		}
 	}
-	DFS(getEIPSPasse, done, s)
 }
 
 BlockInfo* BlockInfo::divideBlock(UIntPtr addr)

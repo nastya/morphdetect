@@ -52,3 +52,8 @@ void Normalizer::normalize()
 	}
 	_running = false;
 }
+
+const set <BlockInfo*> *Normalizer::known()
+{
+	return &_known;
+}

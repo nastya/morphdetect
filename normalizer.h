@@ -14,6 +14,7 @@ public:
 	void forget(BlockInfo*);
 	void normalize();
 	void changeRoot(BlockInfo*);
+	const set <BlockInfo*> *known();
 private:
 	bool _running;
 	set <BlockInfo*> _known;

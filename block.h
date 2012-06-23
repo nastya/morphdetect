@@ -31,7 +31,7 @@ public:
 	bool isMarked(UIntPtr);
 	void copyMark(BlockInfo*);
 	InstructionQueue getInstructions();
-	void getEIPSPasse(unordered_set<int>* s);
+	void getEIPSPasse(unordered_set<int> *s);
 private:
 	struct SubBlock 
 	{
@@ -60,6 +60,7 @@ private:
 	void generateDot(set<BlockInfo*> &done, ostream &out);
 	
 	void getEIPSPasse(set<BlockInfo*> &done, unordered_set<int> *s);
+	inline void getEIPSPasseOne(unordered_set<int> *s);
 
 	UIntPtr _data_start, _data_end;
 	set <BlockInfo*> _to;
