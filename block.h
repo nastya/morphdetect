@@ -17,7 +17,7 @@ class Normalizer;
 class BlockInfo
 {
 public:
-	BlockInfo(Cache* cache, UIntPtr data_start, UIntPtr data_end, UIntPtr entry_point, bool resp);
+	BlockInfo(Cache* cache, UIntPtr data_start, UIntPtr data_end, UIntPtr entry_point);
 	BlockInfo(BlockInfo* parent, UIntPtr entry_point);
 	~BlockInfo();
 	void generateDot(string filename, vector <BlockInfo*>* roots = NULL);
@@ -70,7 +70,6 @@ private:
 	Cache* _cache;
 	vector <SubBlock> _subBlocks;
 	Normalizer* _normalizer;
-	bool _markResponsable;
 	bool _dirtyDelete;
 };
 

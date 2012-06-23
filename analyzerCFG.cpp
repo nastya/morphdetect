@@ -58,7 +58,7 @@ AnalyzerCFG::~AnalyzerCFG()
 InstructionQueue AnalyzerCFG::buildCFG(int pos, const unsigned char* buf, int buf_size)
 {
 	BlockInfo* root = new BlockInfo(&_cache, (UIntPtr) buf,
-			(UIntPtr) (buf + buf_size), (UIntPtr)(buf + pos), true);
+			(UIntPtr) (buf + buf_size), (UIntPtr)(buf + pos));
 	root->process();
 //	root->generateDot(string("cfg_initial.dot"));
 	root->getEIPSPasse(&_eips_passe);

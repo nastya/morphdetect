@@ -21,21 +21,20 @@
 #define EQCOMPARE(a, b, a0) COMPARE(a, b, a0, a0)
 #define BICOMPARE(a, b, a0, b0) (COMPARE(a, b, a0, b0) || COMPARE(a, b, b0, a0))
 
-BlockInfo::BlockInfo(Cache* cache, UIntPtr data_start, UIntPtr data_end, UIntPtr entry_point, bool resp)
+BlockInfo::BlockInfo(Cache* cache, UIntPtr data_start, UIntPtr data_end, UIntPtr entry_point)
 	:_data_start(data_start), _data_end(data_end), _first_block(true), _cache(cache),
-	_markResponsable(resp), _dirtyDelete(false)
+	_dirtyDelete(false)
 {
 	_subBlocks.push_back(SubBlock((entry_point == 0) ? data_start : entry_point, 0));
-	if (_markResponsable)
-	{
-		_mark = new BlockInfo* [data_end - data_start + 1];
+
+	_mark = new BlockInfo* [data_end - data_start + 1];
 #if NULL==0
-		memset(_mark, 0, sizeof(BlockInfo*) * (data_end - data_start + 1));
+	memset(_mark, 0, sizeof(BlockInfo*) * (data_end - data_start + 1));
 #else
-		for (unsigned int i = 0; i <= _data_end - _data_start; i++)
-			_mark[i] = NULL;
+	for (unsigned int i = 0; i <= _data_end - _data_start; i++)
+		_mark[i] = NULL;
 #endif
-	}
+
 	_normalizer = new Normalizer(this);
 	_normalizer->remember(this);
 }
@@ -43,7 +42,7 @@ BlockInfo::BlockInfo(Cache* cache, UIntPtr data_start, UIntPtr data_end, UIntPtr
 BlockInfo::BlockInfo(BlockInfo* parent, UIntPtr entry_point)
 	: _data_start(parent->_data_start), _data_end(parent->_data_end),
 	_first_block(false), _mark(parent->_mark), _cache(parent->_cache), _normalizer(parent->_normalizer),
-	_markResponsable(false), _dirtyDelete(false)
+	_dirtyDelete(false)
 {
 	_from.insert(parent);
 	parent->_to.insert(this);
@@ -66,8 +65,7 @@ BlockInfo::~BlockInfo()
 			(*block)->_dirtyDelete = true;
 			delete (*block);
 		}
-		if (_markResponsable)
-			delete [] _mark;
+		delete [] _mark;
 		delete _normalizer;
 		return;
 	}
@@ -568,9 +566,7 @@ BlockInfo* BlockInfo::removeJxJnx(set<BlockInfo*> &done)
 			if (_first_block)
 			{
 				suc_block->_first_block = true;
-				suc_block->_markResponsable = true;
 				_first_block = false;
-				_markResponsable = false;
 			}
 			return suc_block->removeJxJnx(done);	
 		}
@@ -636,9 +632,7 @@ BlockInfo* BlockInfo::removeJumpsOnly(set<BlockInfo*> &done)
 				if (_first_block)
 				{
 					child->_first_block = true;
-					child->_markResponsable = true;
 					_first_block = false;
-					_markResponsable = false;
 				}
 				child->_from.erase(this);
 				_to.clear();
