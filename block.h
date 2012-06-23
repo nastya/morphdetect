@@ -71,6 +71,7 @@ private:
 	vector <SubBlock> _subBlocks;
 	Normalizer* _normalizer;
 	bool _markResponsable;
+	bool _dirtyDelete;
 };
 
 #endif // __BLOCK_H

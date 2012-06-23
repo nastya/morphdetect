@@ -22,9 +22,9 @@
 #define BICOMPARE(a, b, a0, b0) (COMPARE(a, b, a0, b0) || COMPARE(a, b, b0, a0))
 
 BlockInfo::BlockInfo(Cache* cache, UIntPtr data_start, UIntPtr data_end, UIntPtr entry_point, bool resp)
-	:_data_start(data_start), _data_end(data_end), _first_block(true), _cache(cache)
+	:_data_start(data_start), _data_end(data_end), _first_block(true), _cache(cache),
+	_markResponsable(resp), _dirtyDelete(false)
 {
-	_markResponsable = resp;
 	_subBlocks.push_back(SubBlock((entry_point == 0) ? data_start : entry_point, 0));
 	if (_markResponsable)
 	{
@@ -43,7 +43,7 @@ BlockInfo::BlockInfo(Cache* cache, UIntPtr data_start, UIntPtr data_end, UIntPtr
 BlockInfo::BlockInfo(BlockInfo* parent, UIntPtr entry_point)
 	: _data_start(parent->_data_start), _data_end(parent->_data_end),
 	_first_block(false), _mark(parent->_mark), _cache(parent->_cache), _normalizer(parent->_normalizer),
-	_markResponsable(false)
+	_markResponsable(false), _dirtyDelete(false)
 {
 	_from.insert(parent);
 	parent->_to.insert(this);
@@ -54,24 +54,32 @@ BlockInfo::BlockInfo(BlockInfo* parent, UIntPtr entry_point)
 BlockInfo::~BlockInfo()
 {
 	//cerr<<"Deleting..."<<(void*)this<<endl;
+	if (_dirtyDelete)
+		return;
+
+	if (_first_block) {
+		// Fast delete everything using _dirtyDelete
+		_normalizer->forget(this);
+		const set <BlockInfo*> *all = _normalizer->known();
+		for (auto block = all->begin(); block != all->end(); ++block)
+		{
+			(*block)->_dirtyDelete = true;
+			delete (*block);
+		}
+		if (_markResponsable)
+			delete [] _mark;
+		delete _normalizer;
+		return;
+	}
+
 	for (auto it = _from.begin(); it != _from.end(); ++it)
-	{
 		(*it)->_to.erase(this);
-	}
 	for (auto it = _to.begin(); it != _to.end(); ++it)
-	{
 		(*it)->_from.erase(this);
-	}
 	_to.clear();
 	_from.clear();
 	_normalizer->forget(this);
 	_normalizer->normalize();
-	if (_first_block)
-	{
-		if (_markResponsable)
-			delete [] _mark;
-		delete _normalizer;
-	}
 }
 
 InstructionQueue BlockInfo::getInstructions()
