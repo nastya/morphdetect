@@ -60,7 +60,7 @@ BlockInfo::~BlockInfo()
 	if (_first_block) {
 		// Fast delete everything using _dirtyDelete
 		_normalizer->forget(this);
-		const set <BlockInfo*> *all = _normalizer->known();
+		const unordered_set <BlockInfo*> *all = _normalizer->known();
 		for (auto block = all->begin(); block != all->end(); ++block)
 		{
 			(*block)->_dirtyDelete = true;
@@ -194,7 +194,7 @@ void BlockInfo::generateDot(set<BlockInfo*> &done, ostream &out)
 void BlockInfo::getEIPSPasse(unordered_set<int> *s)
 {
 	if (_first_block) {
-		const set <BlockInfo*> *all = _normalizer->known();
+		const unordered_set <BlockInfo*> *all = _normalizer->known();
 		for (auto block = all->begin(); block != all->end(); ++block)
 			(*block)->getEIPSPasseOne(s);
 	} else {

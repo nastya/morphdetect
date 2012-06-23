@@ -1,7 +1,6 @@
 #ifndef __NORMALIZER_H
 #define __NORMALIZER_H
-#include <set>
-#include "block.h"
+#include <unordered_set>
 using namespace std;
 
 class BlockInfo;
@@ -14,10 +13,10 @@ public:
 	void forget(BlockInfo*);
 	void normalize();
 	void changeRoot(BlockInfo*);
-	const set <BlockInfo*> *known();
+	const unordered_set <BlockInfo*> *known();
 private:
 	bool _running;
-	set <BlockInfo*> _known;
+	unordered_set <BlockInfo*> _known;
 	BlockInfo* _root;
 };
 

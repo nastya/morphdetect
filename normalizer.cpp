@@ -1,6 +1,7 @@
 #include "normalizer.h"
 #include <assert.h>
 #include <iostream>
+#include "block.h"
 
 Normalizer::Normalizer(BlockInfo* root): _running(false), _root(root)
 {
@@ -44,7 +45,7 @@ void Normalizer::normalize()
 		cout << " " << (void *)(*it);
 	cout<<endl;
 	*/
-	set<BlockInfo*> known_before = _known;
+	unordered_set<BlockInfo*> known_before = _known;
 	for (auto it = known_before.begin(); it != known_before.end(); ++it)
 	{
 		if (!reached_blocks.count(*it))
@@ -53,7 +54,7 @@ void Normalizer::normalize()
 	_running = false;
 }
 
-const set <BlockInfo*> *Normalizer::known()
+const unordered_set <BlockInfo*> *Normalizer::known()
 {
 	return &_known;
 }
