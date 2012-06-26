@@ -14,18 +14,18 @@
 
 using namespace std;
 
-AnalyzerTrace::AnalyzerTrace(bool brut): _brut(brut)
+AnalyzerTrace::AnalyzerTrace(bool brut)
+	: Analyzer(), _brut(brut)
 {
 	_shellcodeInstructions = NULL;
 	_className = "AnalyzerTrace";
 }
 
-AnalyzerTrace::AnalyzerTrace(const unsigned char* data, uint size)
-	: Analyzer(data, size), _brut(true)
+AnalyzerTrace::AnalyzerTrace(const unsigned char* data, uint size, bool brut)
+	: Analyzer(data, size), _brut(brut)
 {
 	_shellcodeInstructions = NULL;
 	_className = "AnalyzerTrace";
-	
 }
 
 void AnalyzerTrace::loadShellcodes(char * dirname)

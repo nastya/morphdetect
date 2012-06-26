@@ -3,6 +3,7 @@
 #define THRESHOLD 0.5
 
 AnalyzerNgram::AnalyzerNgram()
+	: Analyzer()
 {
 	_className = "AnalyzerNgram";
 }

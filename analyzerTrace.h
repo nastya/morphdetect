@@ -12,7 +12,7 @@ class AnalyzerTrace : public Analyzer
 {
 public:
 	AnalyzerTrace(bool brut = true);
-	AnalyzerTrace(const unsigned char* data, uint size);
+	AnalyzerTrace(const unsigned char* data, uint size, bool brut = true);
 	~AnalyzerTrace();
 	string analyze();
 	void loadShellcodes(char* dirname);

@@ -5,6 +5,7 @@ using namespace std;
 #define THRESHOLD 0.5
 
 AnalyzerDiff::AnalyzerDiff()
+	: Analyzer()
 {
 	_className = "AnalyzerDiff";
 }

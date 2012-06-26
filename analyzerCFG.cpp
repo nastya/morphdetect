@@ -9,18 +9,18 @@
 
 using namespace std;
 
-AnalyzerCFG::AnalyzerCFG(bool brut): _brut(brut)
+AnalyzerCFG::AnalyzerCFG(bool brut)
+	: Analyzer(), _brut(brut)
 {
 	_shellcodeInstructions = NULL;
 	_className = "AnalyzerCFG";
 }
 
-AnalyzerCFG::AnalyzerCFG(const unsigned char* data, uint size)
-	: Analyzer(data, size), _brut(true)
+AnalyzerCFG::AnalyzerCFG(const unsigned char* data, uint size, bool brut)
+	: Analyzer(data, size), _brut(brut)
 {
 	_shellcodeInstructions = NULL;
 	_className = "AnalyzerCFG";
-	
 }
 
 void AnalyzerCFG::loadShellcodes(char * dirname)

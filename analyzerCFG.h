@@ -12,7 +12,7 @@ class AnalyzerCFG : public Analyzer
 {
 public:
 	AnalyzerCFG(bool brut = true);
-	AnalyzerCFG(const unsigned char* data, uint size);
+	AnalyzerCFG(const unsigned char* data, uint size, bool brut = true);
 	~AnalyzerCFG();
 	string analyze();
 	void loadShellcodes(char* dirname);
