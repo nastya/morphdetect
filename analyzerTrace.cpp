@@ -1,7 +1,5 @@
 #include "analyzerTrace.h"
 #include "compareUtils.h"
-#include "wrappers.h"
-#include "timer.h"
 #include <finddecryptor/emulator.h>
 #include <finddecryptor/emulator_libemu.h>
 //#include <finddecryptor/emulator_qemu.h>
@@ -157,9 +155,7 @@ InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, in
 
 string AnalyzerTrace::analyze_single(int pos)
 {
-	TimerAnalyzer::start(TimeBuild);
 	_instructions = buildTrace(pos, _data.data, _data.size);
-	TimerAnalyzer::stop(TimeBuild);
 	if (_instructions.size() == 0)
 		return string();
 	int ind_max = _instructions.bestMatch(_shellcodeInstructions, _shellcodes.size(), THRESHOLD);

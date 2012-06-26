@@ -27,7 +27,6 @@ int main(int argc, char** argv)
 	uint overlap = min(bl_size / 2, OVERLAP);
 
 	DetectSimilar ds((DetectSimilar::AnalyzerType)(type), DetectSimilar::AnalyzerFlagBrute, (argc >= 5) ? atoi(argv[4]) : 0);
-	TimerAnalyzer::start(TimeLoadShellcodes);
 	if (argv[2][strlen(argv[2])-1] == '/')
 	{
 		ds.loadShellcodes(argv[2]);
@@ -40,11 +39,8 @@ int main(int argc, char** argv)
 			return 0;
 		}
 	}
-	TimerAnalyzer::stop(TimeLoadShellcodes);
-	TimerAnalyzer::start(TimeLoad);
 	Reader reader;
 	reader.load(argv[1]);
-	TimerAnalyzer::stop(TimeLoad);
 
 	/*
 	ds.link(reader.pointer(), reader.size());
@@ -83,13 +79,5 @@ int main(int argc, char** argv)
 	cerr << "Processing time: " << TimerAnalyzer::secs(TimeProcess) << endl;
 	float speed = processed * 8 / 1024.0 / TimerAnalyzer::secs(TimeProcess);
 	cerr << "Speed: " << speed << " kbit/s = " << speed / 8 << " KiB/sec" << endl;
-#ifdef TIMER_DETAILED
-	cerr << "Time spent on loading shellcodes: " << TimerAnalyzer::secs(TimeLoadShellcodes) << endl;
-	cerr << "Time spent on loading data to analyze: " << TimerAnalyzer::secs(TimeLoad) << endl;
-	cerr << "Time spend on building data: " << TimerAnalyzer::secs(TimeBuild) << endl;
-	cerr << "Time spend on disassembling: " << TimerAnalyzer::secs(TimeDisassemble) << endl;
-	cerr << "Time spend on matching: " << TimerAnalyzer::secs(TimeMatch) << endl;
-	cerr << "Time spend on lcs: " << TimerAnalyzer::secs(TimeLCS) << endl;
-#endif
 	return 0;
 }

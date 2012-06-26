@@ -1,6 +1,5 @@
 #include "traceCache.h"
 #include <cstring>
-#include "wrappers.h"
 
 DISASM* TraceCache::getInstruction(int eip, void *addr, int *length)
 {
@@ -12,7 +11,7 @@ DISASM* TraceCache::getInstruction(int eip, void *addr, int *length)
 		DISASM *last = &(extra.back());
 		memset(last, 0, sizeof(DISASM));
 		last->EIP = (UIntPtr) addr;
-		int len = DisasmWrapper(last);
+		int len = Disasm(last);
 		if (length != NULL)
 			*length = len;
 		return last;
@@ -22,7 +21,7 @@ DISASM* TraceCache::getInstruction(int eip, void *addr, int *length)
 	{
 		memset(&(d->disas), 0, sizeof(DISASM));
 		d->disas.EIP = (UIntPtr) addr;
-		d->len = DisasmWrapper(&(d->disas));
+		d->len = Disasm(&(d->disas));
 		memcpy(d->buf, addr, (d->len > 0) ? d->len : 10);
 	}
 

@@ -1,8 +1,6 @@
 #include "analyzerCFG.h"
 #include "block.h"
 #include "compareUtils.h"
-#include "wrappers.h"
-#include "timer.h"
 #include <iostream>
 #include <cstring>
 
@@ -82,9 +80,7 @@ InstructionQueue AnalyzerCFG::buildCFG(int pos, const unsigned char* buf, int bu
 string AnalyzerCFG::analyze_single(int pos)
 {
 	//cerr << "analyze_single launched! POS: " << pos << endl;
-	TimerAnalyzer::start(TimeBuild);
 	_instructions = buildCFG(pos, _data.data, _data.size);
-	TimerAnalyzer::stop(TimeBuild);
 	if (_instructions.size() == 0)
 		return string();
 	int ind_max = _instructions.bestMatch(_shellcodeInstructions, _shellcodes.size(), THRESHOLD);

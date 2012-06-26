@@ -1,7 +1,6 @@
 #ifndef __COMPARE_UTILS_H
 #define __COMPARE_UTILS_H
 
-#include "timer.h"
 #include <iostream>
 #include <algorithm>
 #include <unordered_map>
@@ -31,8 +30,6 @@ public:
 			return 0;
 		}
 
-		TimerAnalyzer::start(TimeLCS);
-
 		size_t f[len1][len2];
 		for (size_t i = 0; i < len1; i++)
 		{
@@ -54,7 +51,6 @@ public:
 			}
 		}
 
-		TimerAnalyzer::stop(TimeLCS);
 		return f[len1 - 1][len2 - 1];
 	}
 };

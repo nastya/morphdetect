@@ -1,5 +1,4 @@
 #include "changedmemory.h"
-#include "wrappers.h"
 #include <iostream>
 #include <string.h>
 #include <beaengine/BeaEngine.h>
@@ -177,7 +176,7 @@ int ChangedMemory::compute(int entry_point)
 			//cout << " Reached end of the memory block, stopping instance." << endl;
 			break;
 		}
-		int len = DisasmWrapper(&MyDisasm);
+		int len = Disasm(&MyDisasm);
 		if (len == UNKNOWN_OPCODE)
 		{
 			break;

@@ -1,6 +1,5 @@
 #include "cache.h"
 #include <cstring>
-#include "wrappers.h"
 
 #include <iostream>
 using namespace std;
@@ -14,7 +13,7 @@ DISASM* Cache::getInstruction(UIntPtr addr, int *length)
 	{
 		memset(&(d->disas), 0, sizeof(DISASM));
 		d->disas.EIP = addr;
-		d->len = DisasmWrapper(&(d->disas));
+		d->len = Disasm(&(d->disas));
 	}
 
 	if (length != NULL)

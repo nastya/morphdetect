@@ -1,5 +1,4 @@
 #include "analyzerDiff.h"
-#include "timer.h"
 
 using namespace std;
 
@@ -18,7 +17,6 @@ AnalyzerDiff::AnalyzerDiff(const unsigned char* data, uint size)
 
 string AnalyzerDiff::analyze()
 {
-	TimerAnalyzer::start(TimeMatch);
 	float max_coef = 0;
 	int max_ans = 0, ind_max = 0;
 
@@ -40,6 +38,5 @@ string AnalyzerDiff::analyze()
 			}
 		}
 	}
-	TimerAnalyzer::stop(TimeMatch);
 	return (max_coef <= THRESHOLD) ? string() : _shellcodes[ind_max].name;
 }
