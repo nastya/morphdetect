@@ -2,6 +2,8 @@
 #define ___ANALYZER_TRACE_H
 #include "analyzer.h"
 #include <beaengine/BeaEngine.h>
+#include <finddecryptor/emulator.h>
+#include <finddecryptor/emulator_libemu.h>
 #include <cstring>
 #include <stdint.h>
 #include <unordered_set>
@@ -23,6 +25,7 @@ private:
 	string analyze_single(int pos);
 	InstructionQueue buildTrace(int pos, const unsigned char* buf, int buf_size);
 	void processShellcodes();
+	Emulator_LibEmu *_emulator;
 	InstructionQueue _instructions;
 	InstructionQueue *_shellcodeInstructions;
 	unordered_set<int> _eips_passe;

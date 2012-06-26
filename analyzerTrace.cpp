@@ -1,8 +1,5 @@
 #include "analyzerTrace.h"
 #include "compareUtils.h"
-#include <finddecryptor/emulator.h>
-#include <finddecryptor/emulator_libemu.h>
-//#include <finddecryptor/emulator_qemu.h>
 #include <finddecryptor/data.h>
 #include <iostream>
 #include <cstring>
@@ -17,6 +14,7 @@ using namespace std;
 AnalyzerTrace::AnalyzerTrace(bool brut)
 	: Analyzer(), _brut(brut)
 {
+	_emulator = new Emulator_LibEmu;
 	_shellcodeInstructions = NULL;
 	_className = "AnalyzerTrace";
 }
@@ -24,6 +22,7 @@ AnalyzerTrace::AnalyzerTrace(bool brut)
 AnalyzerTrace::AnalyzerTrace(const unsigned char* data, uint size, bool brut)
 	: Analyzer(data, size), _brut(brut)
 {
+	_emulator = new Emulator_LibEmu;
 	_shellcodeInstructions = NULL;
 	_className = "AnalyzerTrace";
 }
@@ -58,6 +57,7 @@ void AnalyzerTrace::processShellcodes()
 AnalyzerTrace::~AnalyzerTrace()
 {
 	clear();
+	delete _emulator;
 }
 
 InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, int buf_size)
@@ -66,11 +66,9 @@ InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, in
 
 	Reader *r = new Reader(0u);
 	r->link(buf, buf_size);
-	
-	Emulator_LibEmu* emulator;
-	emulator = new Emulator_LibEmu;
-	emulator->bind(r);
-	emulator->begin(pos);
+
+	_emulator->bind(r);
+	_emulator->begin(pos);
 	char buff[10];
 	int len;
 	DISASM *disasm;
@@ -80,13 +78,13 @@ InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, in
 	
 	for(int i = 0; i < MAX_EMULATE ; i++)
 	{
-		int eip = emulator->get_register(Data::EIP);
+		int eip = _emulator->get_register(Data::EIP);
 		_eips_passe.insert(eip);
 		eip_passe[eip]++;
 		if (!r->is_valid(eip)) {
 			break;
 		}
-		if (!emulator->get_command(buff))
+		if (!_emulator->get_command(buff))
 		{
 			//cerr << "Execution error"<< endl;
 			break;
@@ -109,13 +107,13 @@ InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, in
 			instructions.push_back(InstructionInfo(disasm, len));
 
 		int prev_eip = eip;
-		if (!emulator->step())
+		if (!_emulator->step())
 		{
 			//cerr << "Execution error, skipping instruction" << endl;
-			emulator->jump(prev_eip + len);
+			_emulator->jump(prev_eip + len);
 			continue;
 		}
-		eip = emulator->get_register(Data::EIP);
+		eip = _emulator->get_register(Data::EIP);
 		if (br_type)
 		{
 			if (br_type == JmpType)
@@ -135,7 +133,7 @@ InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, in
 			if (eip != prev_eip + len)
 			{
 				//cerr << "Changing flow from " << eip << " to " << prev_eip + len << endl;
-				emulator->jump(prev_eip + len);
+				_emulator->jump(prev_eip + len);
 			}
 			else
 			{
@@ -143,12 +141,11 @@ InstructionQueue AnalyzerTrace::buildTrace(int pos, const unsigned char* buf, in
 				if (addr_value != 0)
 				{
 					//cerr << "Changing flow from " << eip << " to " << prev_eip + len + addr_value << endl;
-					emulator->jump(prev_eip + len + addr_value);
+					_emulator->jump(prev_eip + len + addr_value);
 				}
 			}
 		}
 	}
-	delete emulator;
 	delete r;
 	return instructions;
 }
