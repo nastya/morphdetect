@@ -161,7 +161,7 @@ uint64_t InstructionInfo::arg_hash(const ARGTYPE &arg) const {
 		case 2:
 			subtype_bit = 1;
 			break;
-		case 3:
+		case 4:
 			subtype_bit = 2;
 			break;
 		case 8:
