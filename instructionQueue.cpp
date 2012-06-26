@@ -61,19 +61,12 @@ bool InstructionQueue::diffPossible(InstructionQueue &model, float required)
 	statCheck();
 	model.statCheck();
 
-	int total;
-
-	total = 0;
-	for (auto &pair : model._stat)
-		total += pair.second * _stat.count(pair.first);
-	if (total < required)
-		return false;
-
-	total = 0;
-	for (auto &pair : model._stat)
-		total += min(pair.second, _stat[pair.first]);
-	if (total < required)
-		return false;
+	int possible = model.size();
+	for (auto &pair : model._stat) {
+		possible -= _stat.count(pair.first) ? pair.second - min(pair.second, _stat[pair.first]) : pair.second;
+		if (possible < required)
+			return false;
+	}
 
 	return true;
 }
