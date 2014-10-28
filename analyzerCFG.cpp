@@ -7,6 +7,9 @@
 #define THRESHOLD 0.5
 #define MIN_SHELLCODE_SIZE 30
 
+namespace detect_similar
+{
+
 using namespace std;
 
 AnalyzerCFG::AnalyzerCFG(bool brut)
@@ -189,3 +192,5 @@ istream & AnalyzerCFG::operator>>(istream &s)
 	*/
 	return s;
 }
+
+} //namespace detect_similar

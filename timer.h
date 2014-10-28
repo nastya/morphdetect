@@ -4,6 +4,9 @@
 #include <cstdlib>
 #include <sys/time.h>
 
+namespace detect_similar
+{
+
 enum TimeAnalyzerIds {
 	TimeTotal,
 	TimeProcess,
@@ -42,5 +45,7 @@ public:
 	static bool enabled;
 	static int data[TimeNone];
 };
+
+} //namespace detect_similar
 
 #endif //TIMER_ANALYZER_H

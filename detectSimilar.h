@@ -6,8 +6,14 @@
 
 using namespace std;
 
-class Analyzer;
+namespace detect_similar
+{
+	class Analyzer;
+}
+
 class FindDecryptor;
+
+using namespace detect_similar;
 
 class DetectSimilar
 {

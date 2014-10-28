@@ -5,6 +5,9 @@
 #include <unordered_map>
 #include <queue>
 
+namespace detect_similar
+{
+
 using namespace std;
 
 struct TraceDisassembler
@@ -23,5 +26,7 @@ private:
 	unordered_map<int, TraceDisassembler> m;
 	queue<DISASM> extra;
 };
+
+} //namespace detect_similar
 
 #endif //__CACHE_H

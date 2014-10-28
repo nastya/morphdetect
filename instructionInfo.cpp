@@ -3,6 +3,9 @@
 
 //#define INSTRUCTION_FUZZY
 
+namespace detect_similar
+{
+
 InstructionInfo::InstructionInfo(DISASM *disasm, int l) : len(l)
 {
 	memcpy(&(this->disasm), disasm, sizeof(DISASM));
@@ -183,3 +186,5 @@ uint64_t InstructionInfo::arg_hash(const ARGTYPE &arg) const {
 
 	return (size_bit << 6) | (type_bit << 4) | subtype_bit;
 }
+
+} //namespace detect_similar

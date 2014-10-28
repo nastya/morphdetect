@@ -4,6 +4,10 @@
 #include <iostream>
 #include <algorithm>
 #include <unordered_map>
+
+namespace detect_similar
+{
+
 using namespace std;
 
 typedef uint8_t mbyte;
@@ -54,5 +58,7 @@ public:
 		return f[len1 - 1][len2 - 1];
 	}
 };
+
+} //namespace detect_similar
 
 #endif //__COMPARE_UTILS_H

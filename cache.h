@@ -3,6 +3,9 @@
 #include <beaengine/BeaEngine.h>
 #include <unordered_map>
 
+namespace detect_similar
+{
+
 using namespace std;
 
 struct Disassembler
@@ -19,5 +22,7 @@ public:
 private:
 	unordered_map<UIntPtr, Disassembler> m;
 };
+
+} //namespace detect_similar
 
 #endif //__CACHE_H

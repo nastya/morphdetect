@@ -2,6 +2,9 @@
 
 #define THRESHOLD 0.5
 
+namespace detect_similar
+{
+
 AnalyzerNgram::AnalyzerNgram()
 	: Analyzer()
 {
@@ -39,3 +42,5 @@ string AnalyzerNgram::analyze()
 	}
 	return (max_coef <= THRESHOLD) ? string() : _shellcodes[ind_max].name;
 }
+
+} //namespace detect_similar

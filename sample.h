@@ -4,6 +4,9 @@
 #include "memoryBlock.h"
 #include <string>
 
+namespace detect_similar
+{
+
 using namespace std;
 
 struct Sample: public MemoryBlock
@@ -13,5 +16,7 @@ struct Sample: public MemoryBlock
 	Sample(string name, int size, unsigned char *data = NULL);
 	string name;
 };
+
+} //namespace detect_similar
 
 #endif

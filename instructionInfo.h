@@ -3,6 +3,9 @@
 
 #include <beaengine/BeaEngine.h>
 
+namespace detect_similar
+{
+
 struct InstructionInfo
 {
 public:
@@ -17,5 +20,7 @@ private:
 	void build_hash();
 	uint64_t arg_hash(const ARGTYPE &arg) const;
 };
+
+} //namespace detect_similar
 
 #endif //__INSTRUCTION_INFO_H

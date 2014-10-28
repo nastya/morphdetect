@@ -1,6 +1,10 @@
 #ifndef __NORMALIZER_H
 #define __NORMALIZER_H
 #include <unordered_set>
+
+namespace detect_similar
+{
+
 using namespace std;
 
 class BlockInfo;
@@ -19,5 +23,7 @@ private:
 	unordered_set <BlockInfo*> _known;
 	BlockInfo* _root;
 };
+
+} //namespace detect_similar
 
 #endif //__NORMALIZER_H

@@ -4,6 +4,9 @@
 #include <iostream>
 #include <errno.h>
 
+namespace detect_similar
+{
+
 using namespace std;
 
 Analyzer::Analyzer()
@@ -110,3 +113,5 @@ istream & operator>>(istream &s, Analyzer &x)
 {
 	return x.operator>>(s);
 }
+
+} //namespace detect_similar

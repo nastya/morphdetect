@@ -5,6 +5,9 @@
 #include <vector>
 #define EMULATION_CHM_THRESHOLD 3000
 
+namespace detect_similar
+{
+
 Data::Register ChangedMemory::convertRegister(int beareg)
 {
 	switch (beareg)
@@ -285,3 +288,5 @@ int ChangedMemory::compute(int entry_point)
 	return amount_shellcodes;
 	
 }
+
+} //namespace detect_similar

@@ -5,8 +5,12 @@
 //#include <finddecryptor/emulator_qemu.h>
 #include <finddecryptor/data.h>
 
-typedef pair <unsigned int,unsigned int> IntPair;
+namespace detect_similar
+{
+
 using namespace std;
+using namespace find_decryptor;
+typedef pair <unsigned int,unsigned int> IntPair;
 
 class ChangedMemory
 {
@@ -33,3 +37,6 @@ private:
 	int* shellcode_size;
 	int amount_shellcodes;	
 };
+
+} //namespace detect_similar
+

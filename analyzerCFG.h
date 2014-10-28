@@ -8,6 +8,9 @@
 #include "instructionQueue.h"
 #include "cache.h"
 
+namespace detect_similar
+{
+
 class AnalyzerCFG : public Analyzer
 {
 public:
@@ -29,5 +32,7 @@ private:
 	bool _brut;
 	Cache _cache;
 };
+
+} //namespace detect_similar
 
 #endif //__ANALYZER_CFG_H

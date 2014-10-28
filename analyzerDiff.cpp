@@ -1,5 +1,8 @@
 #include "analyzerDiff.h"
 
+namespace detect_similar
+{
+
 using namespace std;
 
 #define THRESHOLD 0.5
@@ -41,3 +44,5 @@ string AnalyzerDiff::analyze()
 	}
 	return (max_coef <= THRESHOLD) ? string() : _shellcodes[ind_max].name;
 }
+
+} //namespace detect_similar

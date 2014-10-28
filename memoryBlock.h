@@ -4,6 +4,9 @@
 #include <unistd.h>
 #include "compareUtils.h"
 
+namespace detect_similar
+{
+
 using namespace std;
 
 struct MemoryBlock
@@ -27,5 +30,7 @@ public:
 	uint32_t *statByte;
 	unordered_map<mblock, size_t> statBlock;
 };
+
+} //namespace detect_similar
 
 #endif

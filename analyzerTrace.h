@@ -10,6 +10,11 @@
 #include "instructionQueue.h"
 #include "traceCache.h"
 
+namespace detect_similar
+{
+
+using namespace find_decryptor;
+
 class AnalyzerTrace : public Analyzer
 {
 public:
@@ -33,5 +38,6 @@ private:
 	TraceCache _cache;
 };
 
+} //namespace detect_similar
 
 #endif //___ANALYZER_TRACE_H

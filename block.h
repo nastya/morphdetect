@@ -10,6 +10,10 @@
 #include <string>
 #include "cache.h"
 #include "instructionQueue.h"
+
+namespace detect_similar
+{
+
 using namespace std;
 
 class Normalizer;
@@ -72,5 +76,7 @@ private:
 	Normalizer* _normalizer;
 	bool _dirtyDelete;
 };
+
+} //namespace detect_similar
 
 #endif // __BLOCK_H

@@ -1,6 +1,9 @@
 #include "instructionQueue.h"
 #include "compareUtils.h"
 
+namespace detect_similar
+{
+
 InstructionQueue::InstructionQueue()
  : vector<InstructionInfo>()
 {
@@ -70,3 +73,5 @@ bool InstructionQueue::diffPossible(InstructionQueue &model, float required)
 
 	return true;
 }
+
+} //namespace detect_similar

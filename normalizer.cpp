@@ -3,6 +3,9 @@
 #include <iostream>
 #include "block.h"
 
+namespace detect_similar
+{
+
 Normalizer::Normalizer(BlockInfo* root): _running(false), _root(root)
 {
 }
@@ -58,3 +61,5 @@ const unordered_set <BlockInfo*> *Normalizer::known()
 {
 	return &_known;
 }
+
+} //namespace detect_similar

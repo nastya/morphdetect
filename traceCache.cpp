@@ -1,6 +1,9 @@
 #include "traceCache.h"
 #include <cstring>
 
+namespace detect_similar
+{
+
 DISASM* TraceCache::getInstruction(int eip, void *addr, int *length)
 {
 	bool stored = m.count(eip) > 0;
@@ -35,3 +38,5 @@ void TraceCache::clear()
 	m.clear();
 	extra = queue<DISASM>();
 }
+
+} //namespace detect_similar

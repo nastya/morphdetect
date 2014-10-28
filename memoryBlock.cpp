@@ -2,6 +2,9 @@
 #include <cstring>
 #include <iostream>
 
+namespace detect_similar
+{
+
 MemoryBlock::MemoryBlock(const MemoryBlock &memoryBlock)
  : size(memoryBlock.size), _del_flag(true), statByte(NULL)
 {
@@ -119,3 +122,5 @@ void MemoryBlock::checkStatByte()
 	for (size_t i = 0; i < size; i++)
 		statByte[data[i]]++;
 }
+
+} //namespace detect_similar

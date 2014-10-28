@@ -20,6 +20,9 @@
 #define EQCOMPARE(a, b, a0) COMPARE(a, b, a0, a0)
 #define BICOMPARE(a, b, a0, b0) (COMPARE(a, b, a0, b0) || COMPARE(a, b, b0, a0))
 
+namespace detect_similar
+{
+
 BlockInfo::BlockInfo(Cache* cache, UIntPtr data_start, UIntPtr data_end, UIntPtr entry_point)
 	:_data_start(data_start), _data_end(data_end), _first_block(true), _cache(cache),
 	_dirtyDelete(false)
@@ -668,3 +671,5 @@ BlockInfo* BlockInfo::removeJumpsOnly(set<BlockInfo*> &done)
 	DFS_CLONE(removeJumpsOnly, done)
 	return this;
 }
+
+} //namespace detect_similar

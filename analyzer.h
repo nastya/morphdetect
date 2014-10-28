@@ -7,6 +7,9 @@
 #include <ostream>
 #include "sample.h"
 
+namespace detect_similar
+{
+
 using namespace std;
 
 class Analyzer
@@ -32,5 +35,7 @@ protected:
 
 ostream & operator<<(ostream &, Analyzer &);
 istream & operator>>(istream &, Analyzer &);
+
+} //namespace detect_similar
 
 #endif //__ANALYZER_H

@@ -2,6 +2,10 @@
 #include <cstring>
 
 #include <iostream>
+
+namespace detect_similar
+{
+
 using namespace std;
 
 DISASM* Cache::getInstruction(UIntPtr addr, int *length)
@@ -25,3 +29,5 @@ void Cache::clear()
 {
 	m.clear();
 }
+
+} //namespace detect_similar

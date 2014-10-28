@@ -14,6 +14,7 @@
 //#define OVERLAP 100u
 
 using namespace std;
+using namespace find_decryptor;
 
 int main(int argc, char** argv)
 {

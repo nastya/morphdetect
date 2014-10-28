@@ -5,6 +5,9 @@
 #include <unordered_map>
 #include "instructionInfo.h"
 
+namespace detect_similar
+{
+
 using namespace std;
 
 class InstructionQueue : public vector<InstructionInfo>
@@ -20,5 +23,7 @@ private:
 
 	unordered_map<uint64_t, uint32_t> _stat;
 };
+
+} //namespace detect_similar
 
 #endif //__INSTRUCTION_QUEUE_H

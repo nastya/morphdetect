@@ -9,6 +9,9 @@
 #define MAX_EMULATE 5000
 #define LOOP_MAX_COUNT 10
 
+namespace detect_similar
+{
+
 using namespace std;
 
 AnalyzerTrace::AnalyzerTrace(bool brut)
@@ -259,3 +262,5 @@ istream & AnalyzerTrace::operator>>(istream &s)
 	*/
 	return s;
 }
+
+} //namespace detect_similar

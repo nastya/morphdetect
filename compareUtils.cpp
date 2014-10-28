@@ -1,5 +1,8 @@
 #include "compareUtils.h"
 
+namespace detect_similar
+{
+
 /**
  * Copies bytes from src to dst ignoring 0x0 and 0x90
  */
@@ -19,3 +22,5 @@ size_t CompareUtils::cleanup(mbyte *dst, const mbyte *src, size_t src_len) {
 	}
 	return dst_size;
 }
+
+} //namespace detect_similar
