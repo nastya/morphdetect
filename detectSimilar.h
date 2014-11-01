@@ -13,8 +13,6 @@ namespace detect_similar
 
 class FindDecryptor;
 
-using namespace detect_similar;
-
 class DetectSimilar
 {
 public:
@@ -43,7 +41,7 @@ private:
 	void unpack();
 	unsigned char* _data;
 	int _data_size;
-	Analyzer *_an;
+	detect_similar::Analyzer *_an;
 	FindDecryptor *_fd;
 	int _emulatorTypeCHM; //emulator type for changed memory
 	vector<block_info> _queue;

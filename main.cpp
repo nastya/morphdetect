@@ -15,6 +15,7 @@
 
 using namespace std;
 using namespace find_decryptor;
+using namespace detect_similar;
 
 int main(int argc, char** argv)
 {

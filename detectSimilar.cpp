@@ -12,6 +12,8 @@
 #include <iostream>
 #include <sstream>
 
+using namespace detect_similar;
+
 DetectSimilar::DetectSimilar(AnalyzerType analyzerType, int flags, int minL, int maxL, int finderType,
 		int emulatorTypeFD, int emulatorTypeCHM) :
 	_emulatorTypeCHM(emulatorTypeCHM), _minLevel(minL), _maxLevel(maxL)
